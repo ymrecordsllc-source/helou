@@ -1,0 +1,850 @@
+# PROMPT MAESTRO — AUDITORÍA, REPARACIÓN Y DESARROLLO COMPLETO DE YM-KI RECORDS
+
+Quiero que realices una auditoría completa, reparación y actualización de mi proyecto web **YM-ki Records**, trabajando directamente sobre el código fuente existente.
+
+El objetivo es convertir YM-ki Records en una plataforma completamente funcional, segura, sincronizada y profesional, conservando su identidad visual, diseño, contenido, funcionalidades y estructura actual.
+
+**IMPORTANTE: NO QUIERO QUE RECONSTRUYAS EL PROYECTO DESDE CERO.** Quiero que mejores el proyecto existente, respetando todo el trabajo que ya se ha realizado.
+
+No elimines funcionalidades existentes para simplificar el desarrollo. No sustituyas funciones reales por botones decorativos, datos de demostración o simulaciones.
+
+Todas las modificaciones deben quedar implementadas y conectadas al sistema real.
+
+---
+
+# 1. SEGURIDAD Y PROTECCIÓN DEL SISTEMA
+
+Esta es la primera prioridad.
+
+Realiza una auditoría de seguridad completa y corrige todas las vulnerabilidades que encuentres.
+
+### Autenticación y cuentas administrativas
+
+- Eliminar de la vista pública todos los accesos especiales de inicio de sesión de las cuentas de CEO.
+- Mantener las cuentas de CEO funcionales, pero permitir su acceso únicamente mediante un procedimiento administrativo privado y seguro.
+- Eliminar contraseñas predeterminadas, alternativas de acceso y credenciales escritas directamente en el código.
+- Implementar autenticación segura mediante el servidor.
+- Impedir que los usuarios puedan modificar su rol o privilegios manipulando localStorage, peticiones HTTP o datos del frontend.
+- Implementar permisos reales para CEO, administradores y demás roles.
+- Añadir protección contra suplantación de identidad.
+- Implementar cierre de sesión seguro.
+- Añadir recuperación y cambio de contraseña.
+- Proteger las sesiones y las rutas privadas.
+
+### Protección de API y base de datos
+
+Revisar especialmente:
+
+- `/api/auth/login`
+- `/api/state`
+- `/api/sync`
+- `/api/upload`
+
+Requisitos:
+
+- Ninguna API debe permitir modificar información sin autorización.
+- Los datos privados nunca deben exponerse públicamente.
+- Proteger los archivos y las operaciones de subida.
+- Validar todos los datos recibidos desde el cliente.
+- Implementar controles de permisos en el servidor.
+- Evitar modificaciones no autorizadas de perfiles, Coins, Gems, inventarios, productos, publicaciones y datos administrativos.
+- Evitar peticiones duplicadas y operaciones simultáneas inconsistentes.
+- Implementar copias de seguridad y mecanismos de recuperación.
+
+No basta con ocultar botones o secciones. Las restricciones deben existir también en el backend.
+
+---
+
+# 2. PERSISTENCIA Y SINCRONIZACIÓN TOTAL DE DATOS
+
+Esta sección es de máxima importancia.
+
+Quiero que absolutamente todas las modificaciones realizadas dentro de YM-ki Records se guarden correctamente y permanezcan guardadas.
+
+### Persistencia obligatoria
+
+- Al modificar un perfil, todos los cambios deben guardarse en la base de datos.
+- Los cambios deben ser visibles para los demás usuarios.
+- Al actualizar la página, cerrar sesión, volver a iniciar sesión o entrar desde otro dispositivo, la información debe seguir exactamente como se guardó.
+- No se debe restablecer absolutamente nada al refrescar la página.
+- No deben desaparecer publicaciones, productos, comentarios, mensajes, imágenes, estadísticas, inventarios, monedas, compras, equipos, trabajos, audiciones ni resultados.
+- Las modificaciones deben sincronizarse entre todos los usuarios.
+- Evitar que una sincronización sobrescriba cambios recientes de otros usuarios.
+- Utilizar operaciones seguras y consistentes para actualizar la información.
+
+### Datos del perfil
+
+Guardar permanentemente:
+
+- Nombre de usuario.
+- Nombre visible.
+- Fotografía o avatar.
+- Banner.
+- Biografía.
+- Pronombres, si existen.
+- Empresa o agrupación.
+- Rol dentro de la plataforma.
+- Redes sociales.
+- Estadísticas.
+- Insignias.
+- Inventario.
+- Colecciones.
+- Coins y Gems.
+- Historial de actividad.
+- Cualquier otro campo editable disponible actualmente.
+
+Cuando un usuario modifique su perfil, los demás usuarios deben poder visualizar los cambios al visitar su perfil.
+
+No mostrar información privada, contraseñas ni datos administrativos.
+
+### Regla fundamental
+
+La base de datos debe ser la fuente de verdad de la plataforma. localStorage puede utilizarse para preferencias visuales o caché, pero nunca como sustituto de la persistencia real ni como mecanismo de autenticación o autorización.
+
+---
+
+# 3. TIENDA: CREACIÓN Y ADMINISTRACIÓN DE PRODUCTOS
+
+Quiero mejorar el sistema de creación de productos.
+
+Al seleccionar «Crear producto», debe aparecer un formulario donde sea obligatorio escoger primero el tipo de producto.
+
+### Categorías obligatorias
+
+El creador debe poder elegir entre:
+
+1. Álbum.
+2. Photocard.
+3. Paquete de artículos.
+4. Paquete de photocards.
+5. Otro.
+
+Cada categoría debe mostrar los campos correspondientes.
+
+### Moneda obligatoria
+
+SIEMPRE se debe seleccionar la moneda del producto antes de publicarlo.
+
+No permitir crear productos sin moneda seleccionada.
+
+Utilizar las monedas existentes en YM-ki Records, como Coins y Gems, según corresponda.
+
+El precio, los cobros y las transacciones deben utilizar exclusivamente la moneda seleccionada.
+
+No permitir compras con monedas diferentes a la establecida para el producto.
+
+### Álbumes
+
+Al crear un álbum, solicitar:
+
+- Nombre.
+- Portada.
+- Contraportada, si corresponde.
+- Artista o grupo.
+- Descripción.
+- Fecha de lanzamiento.
+- Precio.
+- Moneda.
+- Stock, si aplica.
+- Lista de tracks.
+- Duración de cada track.
+- Contenido multimedia de cada track.
+
+**Cada track debe permitir adjuntar un archivo de audio reproducible o un enlace multimedia compatible.**
+
+Los usuarios deben poder reproducir las canciones desde la página del álbum.
+
+Añadir:
+
+- Reproductor individual por canción.
+- Reproducción y pausa.
+- Barra de progreso.
+- Control de volumen.
+- Duración.
+- Lista de reproducción.
+- Reproducción continua cuando corresponda.
+
+Los archivos deben almacenarse de manera persistente y los enlaces deben validarse.
+
+### Photocards
+
+Al crear una photocard, permitir:
+
+- Imagen frontal.
+- Imagen trasera.
+- Nombre.
+- Artista.
+- Colección.
+- Rareza.
+- Descripción.
+- Precio.
+- Moneda.
+- Stock o disponibilidad.
+
+### Vista 3D de photocards
+
+La vista 3D debe abrirse EXCLUSIVAMENTE cuando el usuario haga clic sobre una photocard.
+
+No abrir automáticamente al cargar la tienda, entrar a una colección o refrescar la página.
+
+Al hacer clic:
+
+- Abrir una visualización 3D.
+- Mostrar el frente y reverso.
+- Permitir girar la photocard.
+- Permitir cerrar la visualización.
+- Mantener la tarjeta correctamente proporcionada.
+- Añadir una animación fluida de giro.
+
+Al cerrar, regresar a la vista anterior sin perder la posición de navegación.
+
+### Paquetes
+
+Para los paquetes de artículos y paquetes de photocards:
+
+- Permitir seleccionar los productos que los integran.
+- Establecer cantidades.
+- Mostrar una vista previa de su contenido.
+- Definir precio y moneda.
+- Registrar correctamente los artículos entregados después de la compra.
+
+### Seguridad de compras
+
+- Verificar saldo desde el servidor.
+- Evitar compras duplicadas.
+- Verificar disponibilidad.
+- Actualizar inventarios correctamente.
+- Registrar transacciones.
+- Crear un historial de compras.
+
+---
+
+# 4. DESARROLLO COMPLETO DEL SISTEMA SURVIVAL
+
+Esta es una de las funcionalidades más importantes que quiero desarrollar.
+
+Actualmente quiero que el sistema de Survival se convierta en una sección completa e interactiva, donde las empresas puedan organizar competencias, audiciones, rondas, equipos, evaluaciones, votaciones y episodios.
+
+No quiero únicamente una página donde se publique el nombre de un Survival. Quiero un sistema funcional de principio a fin.
+
+## 4.1. Creación de un Survival
+
+Añadir un botón «Crear Survival», visible únicamente para los usuarios autorizados.
+
+Al hacer clic, abrir un formulario inicial.
+
+### Formulario inicial obligatorio
+
+**Información general:**
+
+- Nombre del Survival.
+- Icono o imagen representativa.
+- Banner.
+- Descripción.
+- Edad mínima permitida para aspirantes.
+- Edad máxima permitida para aspirantes.
+- Género solicitado:
+  - Femenino.
+  - Masculino.
+  - Mixto.
+
+**Empresa encargada:**
+
+Mostrar un selector que permita escoger exclusivamente entre:
+
+- La propia empresa que está creando el Survival.
+- Las empresas registradas como aliadas dentro de YM-ki Records.
+
+No permitir escribir nombres de empresas manualmente ni seleccionar empresas que no estén registradas como aliadas.
+
+**Jueces:**
+
+- Permitir seleccionar los usuarios que serán jueces.
+- Mostrar los usuarios disponibles.
+- Permitir asignar y retirar jueces.
+- Guardar permanentemente sus permisos.
+
+**Rondas:**
+
+- Preguntar cuántas rondas tendrá el Survival.
+- Permitir establecer el calendario de convocatorias.
+- Seleccionar fecha de inicio y finalización de las convocatorias.
+
+Al completar el formulario inicial, guardar la información y abrir automáticamente el formulario de configuración de la primera ronda.
+
+---
+
+## 4.2. Configuración de las rondas
+
+Crear un formulario individual para cada ronda indicada en el formulario inicial.
+
+Por ejemplo, si se establecen cinco rondas, deben aparecer cinco formularios de configuración.
+
+Cada ronda debe permitir establecer:
+
+- Nombre de la ronda.
+- Número de ronda.
+- Descripción.
+- Reglas.
+- Criterios de evaluación.
+- Instrucciones para los participantes.
+- Fecha y hora de inicio.
+- Fecha y hora de finalización.
+- Fecha de publicación de resultados.
+- Tipo de evaluación.
+- Cantidad de participantes que avanzarán, si corresponde.
+
+### Visibilidad de las reglas
+
+Añadir una opción:
+
+«Mantener información oculta hasta el inicio de la ronda».
+
+Si está activada:
+
+- Los participantes no podrán consultar las reglas antes de la fecha de inicio.
+- Los administradores y jueces autorizados sí podrán consultarlas.
+- La información se publicará automáticamente cuando comience la ronda.
+
+Si está desactivada, las reglas podrán consultarse desde antes.
+
+### Evaluación
+
+Permitir establecer criterios individuales y ponderaciones.
+
+Los jueces podrán registrar:
+
+- Calificaciones.
+- Comentarios.
+- Observaciones.
+- Notas privadas.
+- Evaluaciones finales.
+
+Las notas privadas solo deben ser visibles para los jueces y administradores autorizados.
+
+---
+
+## 4.3. Miniaturas y estados del Survival
+
+Cada Survival debe tener una miniatura visual con:
+
+- Icono.
+- Banner.
+- Nombre.
+- Empresa organizadora.
+- Género solicitado.
+- Estado actual.
+- Número de ronda actual.
+
+La miniatura debe actualizar automáticamente su estado.
+
+Estados posibles:
+
+- Audiciones abiertas.
+- Audiciones cerradas.
+- En preparación.
+- Ronda 1.
+- Ronda 2.
+- Ronda 3.
+- Ronda X.
+- Final.
+- Finalizado.
+- Cancelado.
+
+El estado debe depender de las fechas, rondas y acciones administrativas reales.
+
+No debe quedarse mostrando un estado antiguo después de avanzar de ronda.
+
+---
+
+## 4.4. Página individual del Survival
+
+Al hacer clic sobre una miniatura, abrir una página completa dedicada al Survival.
+
+El contenido debe adaptarse automáticamente al tipo de usuario y sus permisos.
+
+### A. Participantes
+
+Los participantes aprobados para ingresar al Survival deben poder visualizar:
+
+- Reglas de la ronda actual.
+- Criterios de evaluación.
+- Episodios publicados.
+- Estadísticas de votación, cuando estén disponibles.
+- Subir trabajo.
+- Hacer equipo con otros participantes.
+- Mis equipos.
+- Mis trabajos enviados.
+- Notas de jueces que hayan sido autorizadas para publicación.
+
+### B. Solicitudes para formar equipos
+
+Crear una función llamada «Hacer equipo con».
+
+El participante podrá seleccionar a otro participante y enviarle una solicitud para formar parte de un equipo.
+
+El usuario seleccionado recibirá una notificación con las opciones:
+
+- Aceptar.
+- Rechazar.
+
+Añadir:
+
+- Estado de las solicitudes.
+- Lista de integrantes.
+- Nombre del equipo.
+- Historial de solicitudes.
+- Administración de integrantes.
+- Posibilidad de abandonar un equipo según las reglas de la ronda.
+
+No permitir que usuarios ajenos al Survival formen equipos de participantes.
+
+### C. Mis equipos
+
+Crear una sección donde cada participante pueda visualizar:
+
+- Equipos a los que pertenece.
+- Integrantes.
+- Nombre del equipo.
+- Ronda correspondiente.
+- Estado del equipo.
+- Trabajos enviados por el equipo.
+
+### D. Mis trabajos enviados
+
+Crear un historial permanente de trabajos.
+
+Cada entrega debe guardar:
+
+- Nombre del trabajo.
+- Ronda.
+- Fecha de envío.
+- Archivos adjuntos.
+- Enlaces.
+- Descripción.
+- Integrantes del equipo, si corresponde.
+- Estado de revisión.
+- Evaluaciones recibidas.
+
+Los participantes deben poder consultar sus entregas anteriores.
+
+No perder trabajos al cambiar de ronda.
+
+---
+
+# 5. FUNCIONES PARA FANS Y USUARIOS ESTÁNDAR
+
+Los usuarios con rol Fan o Estándar podrán acceder a una vista pública del Survival.
+
+Mostrar las siguientes secciones:
+
+- Votar.
+- Mis votos.
+- Mis favoritos del Survival.
+- Episodios.
+- Información pública.
+- Participantes.
+- Estadísticas públicas.
+
+### Votaciones
+
+La sección «Votar» solamente debe aparecer cuando los administradores o creadores del Survival hayan habilitado las votaciones para esa ronda.
+
+Los creadores deben poder configurar:
+
+- Si hay votaciones públicas.
+- En qué rondas se permite votar.
+- Cuándo comienzan.
+- Cuándo finalizan.
+- Qué participantes pueden recibir votos.
+- Cuántos votos puede emitir cada usuario.
+- Si se permite votar una o varias veces según las reglas establecidas.
+
+Cada voto debe guardarse permanentemente.
+
+Implementar protección contra:
+
+- Votos duplicados.
+- Manipulación de resultados.
+- Votos enviados fuera del periodo permitido.
+- Votos de cuentas no autorizadas, si existen restricciones.
+
+### Mis votos
+
+Mostrar el historial de votaciones del usuario.
+
+### Mis favoritos del Survival
+
+Permitir guardar participantes favoritos.
+
+Esta sección debe ser privada para cada usuario, salvo que el usuario decida compartirla.
+
+### Estadísticas
+
+Mostrar estadísticas visuales de votación cuando los administradores permitan hacerlas públicas.
+
+No revelar estadísticas privadas ni resultados anticipados.
+
+---
+
+# 6. EPISODIOS DEL SURVIVAL Y SINCRONIZACIÓN CON EL FORO
+
+Crear una sección de episodios dentro de cada Survival.
+
+Únicamente los administradores autorizados y creadores del Survival podrán publicar episodios.
+
+### Crear episodio
+
+Permitir:
+
+- Número de episodio.
+- Nombre.
+- Descripción.
+- Miniatura.
+- Fecha de publicación.
+- Enlace multimedia.
+- Archivo de video o multimedia compatible.
+
+### Reproductor
+
+Los usuarios podrán reproducir los episodios directamente desde la página del Survival cuando el contenido lo permita.
+
+Validar archivos y formatos multimedia.
+
+### Sincronización automática con el foro
+
+Esta función es obligatoria.
+
+Cuando un administrador publique un episodio:
+
+1. El episodio debe guardarse dentro del Survival.
+2. Debe crearse automáticamente una publicación en el foro.
+3. La publicación debe incluir el nombre del Survival.
+4. Debe incluir el número y nombre del episodio.
+5. Debe incluir la miniatura.
+6. Debe incluir el enlace o reproductor multimedia correspondiente.
+7. Debe permitir que los usuarios comenten en el foro.
+8. Debe incluir un enlace que lleve directamente al episodio original.
+
+Si el episodio se actualiza, la publicación asociada debe actualizarse sin generar duplicados.
+
+Si se elimina un episodio, gestionar correctamente su publicación asociada y mantener la integridad de los datos.
+
+No crear dos publicaciones del mismo episodio por errores de sincronización.
+
+---
+
+# 7. FORMULARIOS PERSONALIZABLES DE AUDICIÓN
+
+Los creadores de cada Survival deben poder diseñar su propio formulario de audición.
+
+Crear un editor de formularios que permita:
+
+- Añadir preguntas.
+- Eliminar preguntas.
+- Cambiar el orden.
+- Marcar preguntas como obligatorias.
+- Añadir campos de texto.
+- Añadir respuestas de selección.
+- Añadir preguntas de sí o no.
+- Solicitar enlaces.
+- Solicitar fotografías.
+- Solicitar archivos multimedia.
+- Añadir instrucciones.
+- Crear preguntas personalizadas.
+
+El formulario debe guardar automáticamente su configuración.
+
+### Datos iniciales del aspirante
+
+Debe poder solicitarse:
+
+- Nombre artístico.
+- Edad.
+- Género, cuando sea necesario.
+- Empresa, si corresponde.
+- Experiencia.
+- Habilidades.
+- Fotografías.
+- Videos.
+- Audios.
+- Redes sociales.
+
+Los creadores deben poder revisar las solicitudes desde un panel privado.
+
+### Estados de audición
+
+Cada solicitud debe tener un estado:
+
+- Pendiente.
+- En revisión.
+- Aceptada.
+- Rechazada.
+- En lista de espera.
+
+Los administradores deben poder modificar el estado y enviar notificaciones al aspirante.
+
+Cuando un aspirante sea aceptado, debe obtener acceso a la sección privada de participantes correspondiente.
+
+Cuando sea rechazado, no debe tener acceso a las funciones privadas del Survival.
+
+---
+
+# 8. PERMISOS Y ROLES DEL SURVIVAL
+
+Implementar un sistema de permisos específico para cada Survival.
+
+### Creador
+
+Puede:
+
+- Editar la información general.
+- Configurar rondas.
+- Administrar jueces.
+- Configurar votaciones.
+- Personalizar audiciones.
+- Administrar participantes.
+- Publicar episodios.
+- Gestionar equipos.
+- Consultar estadísticas.
+- Finalizar el Survival.
+
+### Administradores del Survival
+
+Tendrán exclusivamente los permisos que les conceda el creador.
+
+### Jueces
+
+Pueden:
+
+- Consultar trabajos.
+- Evaluar participantes.
+- Calificar trabajos.
+- Añadir observaciones.
+- Registrar notas privadas.
+- Consultar criterios de evaluación.
+
+No deben poder modificar la configuración general si no tienen autorización.
+
+### Participantes
+
+Pueden:
+
+- Consultar las reglas disponibles.
+- Enviar trabajos.
+- Formar equipos.
+- Consultar sus entregas.
+- Consultar evaluaciones autorizadas.
+- Consultar episodios.
+
+### Fans y usuarios estándar
+
+Pueden:
+
+- Consultar información pública.
+- Ver episodios.
+- Consultar estadísticas públicas.
+- Votar cuando esté permitido.
+- Guardar favoritos.
+
+Todos los permisos deben comprobarse desde el servidor.
+
+---
+
+# 9. NOTIFICACIONES Y ACTIVIDAD
+
+Conectar las nuevas funcionalidades al sistema de notificaciones existente.
+
+Generar notificaciones cuando:
+
+- Se acepta una audición.
+- Se rechaza una audición.
+- Se abre una ronda.
+- Se publican nuevas reglas.
+- Se envía una solicitud de equipo.
+- Se acepta una solicitud de equipo.
+- Se publica un episodio.
+- Se recibe una evaluación.
+- Se anuncia un resultado.
+- Se habilitan votaciones.
+- Finaliza una ronda.
+
+Las notificaciones deben ser persistentes y sincronizarse entre dispositivos.
+
+---
+
+# 10. MEJORAS GENERALES DE TODA LA PLATAFORMA
+
+Además de lo anterior, revisar todas las secciones existentes de YM-ki Records.
+
+### Perfiles y comunidad
+
+- Corregir edición y sincronización de perfiles.
+- Mejorar comentarios.
+- Mejorar mensajes privados.
+- Añadir bloqueo y denuncias.
+- Corregir notificaciones.
+- Mejorar permisos de publicaciones.
+- Evitar contenido duplicado.
+- Comprobar la privacidad de los foros.
+
+### Economía
+
+- Proteger Coins y Gems.
+- Guardar todas las transacciones.
+- Evitar saldos negativos.
+- Evitar reclamaciones duplicadas.
+- Proteger recompensas.
+- Mantener inventarios después de actualizar la página.
+
+### Rendimiento
+
+- Optimizar imágenes.
+- Evitar consultas innecesarias.
+- Corregir errores de sincronización.
+- Mejorar tiempos de carga.
+- Evitar bloqueos de interfaz.
+- Mejorar la compatibilidad móvil.
+
+### Diseño
+
+Mantener la identidad visual actual de YM-ki Records.
+
+No cambiar arbitrariamente:
+
+- Paleta de colores.
+- Tipografías.
+- Identidad de marca.
+- Estilo de tarjetas.
+- Diseño de navegación.
+- Estética general.
+
+Mejorar la consistencia visual, las animaciones, los formularios, las ventanas emergentes y la experiencia responsive sin perder la personalidad original.
+
+---
+
+# 11. REQUISITOS TÉCNICOS Y DE IMPLEMENTACIÓN
+
+Antes de modificar el proyecto:
+
+1. Examinar toda la estructura del repositorio.
+2. Identificar frontend, backend, base de datos y servicios.
+3. Revisar los componentes existentes.
+4. Identificar funcionalidades incompletas.
+5. Localizar errores y vulnerabilidades.
+6. Identificar qué información se guarda actualmente y qué información se pierde.
+7. Realizar una copia de seguridad antes de migraciones o cambios estructurales.
+
+Durante el desarrollo:
+
+- Reutilizar componentes existentes cuando sea conveniente.
+- No duplicar funcionalidades.
+- Mantener compatibilidad con los datos existentes.
+- Crear migraciones seguras.
+- Implementar validaciones frontend y backend.
+- Evitar datos simulados.
+- Evitar botones sin funcionalidad.
+- Evitar funciones que únicamente cambien la apariencia sin guardar información.
+- No eliminar datos existentes.
+- No sobrescribir información real con datos de prueba.
+- Utilizar almacenamiento persistente para archivos multimedia.
+- Gestionar correctamente errores y estados de carga.
+
+Si alguna funcionalidad necesita un servicio externo, identificarlo y explicar qué configuración o credenciales se necesitan. No simular que funciona si todavía no está conectado.
+
+---
+
+# 12. PRUEBAS OBLIGATORIAS ANTES DE FINALIZAR
+
+No considerar terminado el trabajo hasta comprobar lo siguiente:
+
+### Persistencia
+
+- Crear un usuario y modificar su perfil.
+- Refrescar la página.
+- Cerrar sesión y volver a entrar.
+- Acceder desde otro dispositivo o sesión.
+- Comprobar que los cambios siguen guardados y son visibles para otros usuarios.
+
+### Seguridad
+
+- Intentar acceder a una cuenta administrativa sin autorización.
+- Intentar modificar roles desde el navegador.
+- Intentar consultar datos privados.
+- Intentar realizar compras sin saldo.
+- Intentar enviar peticiones sin permisos.
+- Intentar subir archivos no permitidos.
+
+### Tienda
+
+- Crear un producto de cada categoría.
+- Comprobar que la moneda es obligatoria.
+- Comprar un producto.
+- Comprobar que se actualiza el inventario.
+- Abrir una photocard y comprobar su visualización 3D.
+- Comprobar la reproducción de todos los tracks de un álbum.
+
+### Survival
+
+- Crear un Survival completo.
+- Configurar varias rondas.
+- Crear un formulario personalizado de audición.
+- Registrar aspirantes.
+- Aceptar y rechazar solicitudes.
+- Comprobar los permisos de participantes.
+- Enviar trabajos.
+- Formar equipos.
+- Evaluar trabajos.
+- Habilitar y cerrar votaciones.
+- Publicar episodios.
+- Comprobar su sincronización con el foro.
+- Cambiar de ronda.
+- Finalizar el Survival.
+
+Comprobar que todos los datos sobreviven a una actualización de página y a una nueva sesión.
+
+---
+
+# 13. RESULTADO FINAL ESPERADO
+
+Quiero recibir un YM-ki Records completamente funcional, no una demostración visual.
+
+El resultado debe cumplir estas condiciones:
+
+1. Todas las funciones existentes continúan funcionando.
+2. Todas las vulnerabilidades identificadas quedan corregidas.
+3. Los datos se guardan permanentemente.
+4. Las modificaciones de perfiles son visibles para otros usuarios.
+5. Ninguna información desaparece al refrescar.
+6. La tienda permite crear y comprar correctamente todos los tipos de productos.
+7. Los álbumes tienen tracks reproducibles.
+8. Las photocards tienen visualización 3D bajo demanda.
+9. El sistema Survival está completamente desarrollado.
+10. Los formularios, rondas, equipos, jueces, audiciones, episodios y votaciones funcionan.
+11. Los episodios se sincronizan automáticamente con el foro.
+12. Los permisos se respetan en frontend y backend.
+13. La plataforma conserva su identidad visual.
+14. No se pierden datos ni funcionalidades anteriores.
+
+**INSTRUCCIÓN FINAL:**
+
+Trabaja directamente sobre el proyecto proporcionado. No te limites a generar recomendaciones, describir cambios o mostrar fragmentos de código.
+
+Implementa los cambios reales en los archivos correspondientes, conecta frontend y backend, actualiza la base de datos cuando sea necesario y prueba cada funcionalidad.
+
+Prioriza la seguridad y la persistencia antes de desarrollar las nuevas funcionalidades.
+
+Si el proyecto es demasiado grande para completarlo en una sola ejecución, trabaja por fases, conserva el progreso y continúa con las siguientes fases sin dejar implementaciones a medias.
+
+Al finalizar, proporciona un informe que indique:
+
+- Qué archivos modificaste.
+- Qué vulnerabilidades corregiste.
+- Qué funcionalidades desarrollaste.
+- Qué migraciones realizaste.
+- Qué pruebas ejecutaste y sus resultados.
+- Qué servicios o configuraciones externas siguen pendientes.
+
+**No declares una funcionalidad terminada si no está implementada, conectada y probada.**
+
+El objetivo es que YM-ki Records esté preparado para funcionar como una plataforma real, multiusuario, persistente, segura y lista para su lanzamiento público.

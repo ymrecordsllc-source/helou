@@ -1,0 +1,2437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YM-ki Web - Foros y Comunidades</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-hover: #334155;
+            --primary: #6366f1;
+            --primary-hover: color-mix(in srgb, var(--primary) 82%, #000);
+            --primary-soft: color-mix(in srgb, var(--primary) 15%, transparent);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --accent: #ec4899;
+            --coin-gold: #f59e0b;
+            --verified-blue: #38bdf8;
+            --danger: #ef4444;
+        }
+
+        body.light-theme {
+            --bg-dark: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-hover: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+
+        body { background-color: var(--bg-dark); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+
+        .view { display: none; flex: 1; width: 100%; flex-direction: column; }
+        .view.active { display: flex; }
+
+        /* --- ETIQUETAS Y PERFILES --- */
+        .badge-announcement { background-color: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+        .verified-forum-badge { color: var(--verified-blue); margin-left: 0.3rem; }
+
+        .pinned-announcement-banner {
+            background: linear-gradient(135deg, var(--primary-soft), rgba(236, 72, 153, 0.2));
+            border: 1px solid var(--primary);
+            border-radius: 0.75rem; padding: 1rem; margin-bottom: 0.5rem; cursor: pointer; transition: transform 0.2s;
+        }
+        .pinned-announcement-banner:hover { transform: translateY(-2px); }
+
+        .profile-preview-card {
+            background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 1rem; padding: 2rem;
+            width: 100%; max-width: 400px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1rem; position: relative;
+        }
+        .profile-preview-avatar-wrapper { position: relative; width: 80px; height: 80px; margin: 0 auto; }
+        .profile-preview-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
+        .profile-preview-ring { position: absolute; top: 0; left: 0; width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--primary); pointer-events: none; background-size: cover; }
+
+        .poll-option-btn { width: 100%; padding: 0.75rem; background-color: var(--bg-dark); border: 1px solid var(--border); border-radius: 0.5rem; color: var(--text-main); text-align: left; cursor: pointer; margin-bottom: 0.5rem; transition: background 0.2s; }
+        .poll-option-btn:hover { background-color: var(--bg-hover); border-color: var(--primary); }
+        .comment-box { background-color: var(--bg-dark); border-left: 3px solid var(--primary); padding: 0.75rem; border-radius: 0.3rem; margin-top: 0.5rem; }
+
+        /* --- CLUBES DE FANS --- */
+        .fans-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1rem; }
+        .fan-club-card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 1rem; overflow: hidden; cursor: pointer; transition: transform 0.2s, border-color 0.2s; position: relative; display: flex; flex-direction: column; }
+        .fan-club-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+        .fan-club-banner { width: 100%; height: 110px; object-fit: cover; background-color: var(--bg-hover); }
+        .fan-club-body { padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; position: relative; margin-top: -30px; }
+        .fan-club-avatar { width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--bg-card); object-fit: cover; background: var(--bg-dark); }
+
+        .fandom-badge-pill { background-color: rgba(236, 72, 153, 0.15); color: var(--accent); border: 1px solid rgba(236, 72, 153, 0.3); padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.3rem; vertical-align: middle; }
+        .fandom-badge-pill img { width: 14px; height: 14px; border-radius: 50%; object-fit: cover; }
+
+        .artist-tag-chip { background-color: var(--bg-dark); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 0.3rem; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.3rem; margin: 0.2rem; }
+        .artist-tag-chip span { cursor: pointer; color: var(--danger); font-weight: bold; }
+
+        .artist-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .artist-mini-card { background-color: var(--bg-dark); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1rem; text-align: center; cursor: pointer; transition: border-color 0.2s; }
+        .artist-mini-card:hover { border-color: var(--primary); }
+
+        /* --- LANDING Y AUTH --- */
+        #landing-view {
+            justify-content: center; align-items: center; text-align: center; padding: 2rem; min-height: 100vh;
+            background: linear-gradient(135deg, #0f172a 0%, color-mix(in srgb, var(--primary) 30%, #0f172a) 100%);
+        }
+        .landing-title { font-size: 3.5rem; font-weight: 800; letter-spacing: -0.05em; margin-bottom: 1rem; background: linear-gradient(to right, var(--primary), #ec4899); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+        .landing-quote { font-size: 1.25rem; color: #94a3b8; max-width: 600px; margin-bottom: 2.5rem; font-style: italic; }
+        .landing-buttons { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+
+        .btn { background-color: var(--primary); color: white; border: none; padding: 0.85rem 2rem; font-size: 1rem; font-weight: 600; border-radius: 9999px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .btn:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
+        .btn-outline { background-color: transparent; border: 2px solid var(--border); color: var(--text-main); box-shadow: none; }
+        .btn-outline:hover { background-color: var(--border); border-color: var(--text-muted); }
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { background-color: #dc2626; }
+        .btn[disabled] { opacity: 0.6; cursor: default; transform: none; }
+
+        #auth-view { justify-content: center; align-items: center; padding: 2rem; min-height: 100vh; background: radial-gradient(circle at center, var(--bg-card) 0%, var(--bg-dark) 100%); }
+        .auth-container { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 1rem; padding: 2.5rem; width: 100%; max-width: 420px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); }
+        .auth-header { display: flex; justify-content: space-between; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+        .tab-btn { background: none; border: none; color: var(--text-muted); font-size: 1rem; font-weight: 600; cursor: pointer; padding-bottom: 0.25rem; position: relative; }
+        .tab-btn.active { color: var(--text-main); }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -1rem; left: 0; width: 100%; height: 2px; background-color: var(--primary); }
+
+        .form-group, .modal-form-group { margin-bottom: 0; display: block; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label, .modal-form-group label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-muted); }
+        .form-group input, .form-group textarea, .form-group select,
+        .modal-form-group input[type="text"], .modal-form-group input[type="password"], .modal-form-group input[type="number"],
+        .modal-form-group textarea, .modal-form-group select {
+            width: 100%; padding: 0.75rem 1rem; background-color: var(--bg-dark); border: 1px solid var(--border); border-radius: 0.5rem; color: var(--text-main); font-size: 1rem;
+        }
+        .modal-form-group input[type="file"], .form-group input[type="file"] { width: 100%; color: var(--text-muted); font-size: 0.85rem; }
+        .modal-form-group input[type="color"] { width: 100%; height: 40px; padding: 0.2rem; cursor: pointer; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 0.5rem; }
+        .modal-form-group textarea, .form-group textarea { min-height: 90px; resize: vertical; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus,
+        .modal-form-group input:focus, .modal-form-group textarea:focus, .modal-form-group select:focus { outline: none; border-color: var(--primary); }
+
+        .auth-submit { width: 100%; padding: 0.75rem; background-color: var(--primary); color: white; border: none; border-radius: 0.5rem; font-weight: 600; font-size: 1rem; cursor: pointer; transition: background-color 0.2s; }
+        .auth-submit:hover { background-color: var(--primary-hover); }
+        .back-home { display: block; text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted); text-decoration: none; }
+        .form-panel { display: none; }
+        .form-panel.active { display: block; }
+
+        /* --- NAVBAR (alineada en una sola línea) --- */
+        #dashboard-view { flex: 1; display: none; flex-direction: column; }
+        #dashboard-view.active { display: flex; }
+
+        .navbar {
+            background-color: var(--bg-card); border-bottom: 1px solid var(--border);
+            display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center;
+            padding: 0.6rem 1.25rem; gap: 1rem; position: sticky; top: 0; z-index: 900;
+        }
+        .nav-left-group { display: flex; align-items: center; gap: 0.75rem; white-space: nowrap; }
+        .menu-hamburger-btn { background: none; border: none; color: var(--text-main); font-size: 1.25rem; cursor: pointer; padding: 0.5rem; border-radius: 0.375rem; }
+        .menu-hamburger-btn:hover { background-color: var(--bg-hover); }
+        .nav-brand { font-weight: 700; font-size: 1.2rem; color: var(--text-main); }
+        .nav-links { display: flex; gap: 0.5rem; justify-content: center; align-items: center; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+        .nav-links::-webkit-scrollbar { display: none; }
+        .nav-item { background: none; border: none; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; cursor: pointer; padding: 0.5rem 0.75rem; border-radius: 0.375rem; display: flex; align-items: center; gap: 0.5rem; white-space: nowrap; }
+        .nav-item:hover { background-color: var(--bg-hover); color: var(--text-main); }
+        .nav-item.active { color: var(--primary); background-color: var(--primary-soft); }
+        .nav-right { display: flex; align-items: center; gap: 0.75rem; flex-wrap: nowrap; white-space: nowrap; }
+
+        .coins-badge { background-color: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); padding: 0.35rem 0.75rem; border-radius: 9999px; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+        .coins-badge i { color: var(--coin-gold); }
+        .coins-count { font-weight: 700; font-size: 0.9rem; color: var(--coin-gold); }
+
+        .notification-bell-btn { background: none; border: none; color: var(--text-muted); font-size: 1.15rem; cursor: pointer; position: relative; padding: 0.4rem 0.6rem; border-radius: 50%; }
+        .notification-bell-btn:hover { background-color: var(--bg-hover); color: var(--text-main); }
+        .notification-dot { position: absolute; top: 4px; right: 6px; width: 8px; height: 8px; background-color: var(--accent); border-radius: 50%; }
+
+        .user-profile-btn { background: none; border: none; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 9999px; color: var(--text-main); }
+        .user-profile-btn:hover { background-color: var(--bg-hover); }
+        .user-avatar-wrapper { position: relative; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .user-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+        .avatar-ring { position: absolute; top: 0; left: 0; width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--primary); pointer-events: none; background-size: cover; }
+        .user-name { display: inline-flex; align-items: center; max-width: 260px; overflow: hidden; white-space: nowrap; font-size: 0.9rem; font-weight: 600; color: var(--text-main); }
+
+        .logout-btn { background-color: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 0.4rem 0.8rem; border-radius: 0.375rem; font-size: 0.85rem; cursor: pointer; }
+        .logout-btn:hover { background-color: var(--border); color: var(--text-main); }
+
+        @media (max-width: 900px) {
+            .navbar { grid-template-columns: minmax(0, 1fr) auto; }
+            .nav-links { grid-column: 1 / -1; grid-row: 2; justify-content: flex-start; }
+            .nav-brand { display: none; }
+            .user-name { max-width: 120px; }
+        }
+
+        .main-content { flex: 1; padding: 2rem; display: none; width: 100%; max-width: 950px; margin: 0 auto; flex-direction: column; gap: 1.5rem; }
+        .content-section { display: none; width: 100%; flex-direction: column; gap: 1.5rem; }
+        .content-section.active { display: flex; }
+
+        .generic-placeholder { background-color: var(--bg-card); border: 2px dashed var(--border); border-radius: 1rem; justify-content: center; align-items: center; color: var(--text-muted); font-size: 1.1rem; display: flex; flex-direction: column; gap: 1rem; text-align: center; padding: 4rem 2rem; }
+        .section-icon { font-size: 3rem; color: var(--primary); margin-bottom: 0.5rem; }
+
+        /* --- MENÚ LATERAL --- */
+        .sidebar-drawer { position: fixed; top: 0; left: -320px; width: 320px; max-width: 90vw; height: 100%; background-color: var(--bg-card); border-right: 1px solid var(--border); z-index: 1100; transition: left 0.3s ease; display: flex; flex-direction: column; box-shadow: 10px 0 25px rgba(0,0,0,0.5); }
+        .sidebar-drawer.open { left: 0; }
+        .sidebar-header { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .sidebar-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; overflow-y: auto; flex: 1; }
+        .sidebar-section h4 { font-size: 0.9rem; color: var(--primary); margin-bottom: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .sidebar-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; color: var(--text-main); background-color: var(--bg-dark); border: 1px solid var(--border); border-radius: 0.5rem; cursor: pointer; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 600; }
+        .sidebar-link:hover { border-color: var(--primary); background-color: var(--bg-hover); }
+        .drawer-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.7); backdrop-filter: blur(3px); display: none; z-index: 1050; }
+        .drawer-backdrop.active { display: block; }
+
+        /* --- FOROS --- */
+        .forum-nav-tabs { display: flex; gap: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; flex-wrap: wrap; }
+        .forum-tab-btn { background: none; border: none; color: var(--text-muted); font-size: 1rem; font-weight: 600; cursor: pointer; padding: 0.5rem 1rem; border-radius: 0.375rem; }
+        .forum-tab-btn.active { color: white; background-color: var(--primary); }
+        .forum-subview { display: none; flex-direction: column; gap: 1.5rem; }
+        .forum-subview.active { display: flex; }
+        .forums-group-title { font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .forums-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; }
+
+        .forum-card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 0.75rem; overflow: hidden; cursor: pointer; transition: transform 0.2s, border-color 0.2s; position: relative; }
+        .forum-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+        .forum-banner { width: 100%; height: 100px; object-fit: cover; background-color: var(--bg-hover); display: block; }
+        .forum-card-body { padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; position: relative; }
+        .forum-avatar-mini { width: 50px; height: 50px; border-radius: 50%; border: 3px solid var(--bg-card); object-fit: cover; position: absolute; top: -35px; left: 1rem; }
+        .forum-card-content { margin-top: 1rem; }
+        .forum-card-title-row { display: flex; align-items: center; gap: 0.5rem; }
+        .forum-card-title-row h3 { font-size: 1rem; font-weight: 700; color: var(--text-main); }
+        .forum-card-desc { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; display: -webkit-box; line-clamp: 2; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .forum-card-stats { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; display: flex; justify-content: space-between; }
+
+        .forum-options-container { position: absolute; top: 1rem; right: 1rem; z-index: 20; }
+        .forum-options-btn { background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .forum-dropdown-menu { position: absolute; top: 100%; right: 0; background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4); display: none; flex-direction: column; width: 220px; z-index: 30; overflow: hidden; margin-top: 0.25rem; }
+        .forum-dropdown-menu.active { display: flex; }
+        .dropdown-item { background: none; border: none; text-align: left; padding: 0.75rem 1rem; font-size: 0.85rem; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 0.5rem; }
+        .dropdown-item:hover { background-color: var(--bg-hover); }
+        .dropdown-item.danger { color: var(--danger); }
+
+        .forum-card-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.85); backdrop-filter: blur(2px); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.75rem; opacity: 0; pointer-events: none; transition: opacity 0.2s ease; z-index: 10; }
+        .forum-card:hover .forum-card-overlay { opacity: 1; pointer-events: auto; }
+
+        #forum-detail-view-container { width: 100%; border-radius: 1rem; overflow: hidden; }
+        #forum-main-wrapper { border-radius: 1rem; background-size: cover; background-position: center; }
+        .forum-detail-header { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 0.75rem; overflow: hidden; margin-bottom: 1.5rem; }
+        .forum-detail-banner { width: 100%; height: 160px; object-fit: cover; background-color: var(--bg-hover); display: block; }
+        .forum-detail-info { padding: 1.5rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem; position: relative; }
+        .forum-detail-left { display: flex; gap: 1.25rem; align-items: center; margin-top: -50px; }
+        .forum-detail-avatar { width: 80px; height: 80px; border-radius: 50%; border: 4px solid var(--bg-card); object-fit: cover; background-color: var(--bg-dark); }
+
+        .create-post-bar { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem; cursor: pointer; }
+        .create-post-bar img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+        .create-post-input-fake { flex: 1; background-color: var(--bg-dark); border: 1px solid var(--border); border-radius: 9999px; padding: 0.75rem 1.25rem; color: var(--text-muted); font-size: 0.95rem; }
+
+        .forum-filters { display: flex; justify-content: space-between; align-items: center; background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 0.75rem 1.25rem; flex-wrap: wrap; gap: 1rem; }
+        .filter-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .tag-pill { background-color: var(--bg-dark); border: 1px solid var(--border); color: var(--text-muted); padding: 0.35rem 0.85rem; border-radius: 9999px; font-size: 0.85rem; cursor: pointer; }
+        .tag-pill.active { background-color: var(--primary); border-color: var(--primary); color: white; }
+        .filter-sorts { display: flex; gap: 0.5rem; }
+        .sort-btn { background: none; border: none; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; cursor: pointer; padding: 0.35rem 0.6rem; border-radius: 0.375rem; }
+        .sort-btn.active { color: var(--primary); }
+
+        .post-card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; cursor: pointer; }
+        .post-header { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+        .post-author-info { display: flex; align-items: center; gap: 0.75rem; cursor: pointer; }
+        .post-author-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+        .post-meta-text h4 { font-size: 0.95rem; font-weight: 600; color: var(--text-main); }
+        .post-meta-text span { font-size: 0.75rem; color: var(--text-muted); }
+        .post-badge { background-color: var(--primary-soft); color: var(--primary); border: 1px solid var(--primary); padding: 0.25rem 0.65rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .post-body h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .post-body p { font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.75rem; }
+        .post-footer { display: flex; gap: 1.5rem; border-top: 1px solid var(--border); padding-top: 0.75rem; font-size: 0.9rem; color: var(--text-muted); }
+        .post-action-btn { background: none; border: none; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 600; }
+        .post-action-btn:hover { color: var(--primary); }
+        .post-action-btn.liked { color: var(--accent); }
+
+        /* --- CHATS --- */
+        .chats-layout { display: grid; grid-template-columns: 280px 1fr; height: calc(100vh - 150px); min-height: 420px; background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 1rem; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); }
+        .chats-sidebar { background-color: var(--bg-dark); border-right: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0; }
+        .chats-sidebar-header { padding: 1.25rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .chats-list { overflow-y: auto; flex: 1; padding: 0.5rem; }
+        .chat-contact-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.5rem; cursor: pointer; }
+        .chat-contact-item:hover, .chat-contact-item.active { background-color: var(--bg-hover); }
+        .chat-main-panel { display: flex; flex-direction: column; background-color: var(--bg-card); min-height: 0; }
+        .chat-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; }
+        .chat-messages-area { flex: 1; padding: 1.25rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; background: radial-gradient(circle at center, var(--bg-card) 0%, var(--bg-dark) 100%); }
+        .chat-message { max-width: 65%; padding: 0.75rem 1rem; border-radius: 0.75rem; font-size: 0.95rem; line-height: 1.4; word-break: break-word; }
+        .chat-message.incoming { background-color: var(--bg-hover); color: var(--text-main); align-self: flex-start; }
+        .chat-message.outgoing { background-color: var(--primary); color: white; align-self: flex-end; }
+        .chat-input-area { padding: 1rem 1.25rem; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 0.75rem; background-color: var(--bg-dark); }
+        .chat-input-area input { flex: 1; background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 9999px; padding: 0.75rem 1.25rem; color: var(--text-main); }
+        @media (max-width: 700px) {
+            .chats-layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+            .chats-list { max-height: 120px; }
+            .main-content { padding: 1rem; }
+        }
+
+        /* --- AUDICIONES (el degradado sigue el color principal) --- */
+        .audition-panel-wrapper { display: flex; flex-direction: column; gap: 1.5rem; width: 100%; }
+        .audition-hero-card {
+            background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 30%, var(--bg-dark)) 0%, color-mix(in srgb, var(--primary) 75%, var(--bg-dark)) 100%);
+            border: 1px solid var(--primary); border-radius: 1rem; padding: 2.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); color: #fff;
+        }
+        .audition-hero-card p { color: rgba(255,255,255,0.8); }
+        .audition-hero-card .btn { background-color: #fff; color: var(--primary-hover); }
+        .audition-hero-card .btn:hover { background-color: #f1f5f9; }
+        .audition-rules-card, .audition-history-card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 1rem; padding: 1.5rem 2rem; }
+        .audition-form-page { display: none; background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 1rem; padding: 2.5rem; flex-direction: column; gap: 1.5rem; }
+        .audition-form-page.active { display: flex; }
+
+        /* --- MODALES --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 2000; padding: 1rem; }
+        .modal-overlay.active { display: flex; }
+        #user-profile-preview-modal { z-index: 2100; }
+        .modal-card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 1rem; padding: 1.5rem; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; }
+        .modal-header h3 { font-size: 1.15rem; font-weight: 700; }
+        .close-modal { background: none; border: none; color: var(--text-muted); font-size: 1.6rem; line-height: 1; cursor: pointer; padding: 0 0.4rem; border-radius: 0.375rem; }
+        .close-modal:hover { color: var(--text-main); background-color: var(--bg-hover); }
+        .color-palette { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .color-palette .btn.selected { outline: 3px solid var(--text-main); outline-offset: 2px; }
+        .img-preview { margin-top: 0.25rem; }
+
+        #toast-container { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 3000; display: flex; flex-direction: column; gap: 0.5rem; align-items: center; pointer-events: none; }
+        .toast { background-color: var(--bg-card); color: var(--text-main); border: 1px solid var(--primary); border-radius: 0.75rem; padding: 0.75rem 1.25rem; box-shadow: 0 10px 25px rgba(0,0,0,0.4); font-size: 0.9rem; max-width: 90vw; }
+
+        /* --- PERFIL --- */
+        .profile-edit-container { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 1rem; padding: 2.5rem; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
+        .profile-banner-preview { width: 100%; height: 140px; border: 2px dashed var(--border); border-radius: 0.5rem; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); }
+        .profile-avatar-preview-box { width: 90px; height: 90px; border-radius: 50%; border: 2px dashed var(--border); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; color: var(--text-muted); flex-shrink: 0; }
+    </style>
+</head>
+<body>
+
+    <!-- 1. LANDING -->
+    <div id="landing-view" class="view active">
+        <h1 class="landing-title">YM-ki Web</h1>
+        <p class="landing-quote">"Tu voz tiene el poder de conmover al mundo; atrévete a cruzar el umbral y deja que tu talento hable."</p>
+        <div class="landing-buttons">
+            <button class="btn" onclick="goToAuth('aspirante')"><i class="fa-solid fa-microphone-lines"></i> Audicionar</button>
+            <button class="btn btn-outline" style="color:#f8fafc;" onclick="goToAuth('fan')"><i class="fa-solid fa-heart"></i> Entrar como fan</button>
+        </div>
+    </div>
+
+    <!-- 2. AUTENTICACIÓN -->
+    <div id="auth-view" class="view">
+        <div class="auth-container">
+            <div class="auth-header">
+                <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Iniciar Sesión</button>
+                <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Registro</button>
+            </div>
+
+            <form id="form-login" class="form-panel active" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="login-id">Nombre de usuario / Correo electrónico</label>
+                    <input type="text" id="login-id" required placeholder="Ingresa tu usuario o correo">
+                </div>
+                <div class="form-group">
+                    <label for="login-pass">Contraseña</label>
+                    <input type="password" id="login-pass" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="auth-submit">Entrar</button>
+                <a href="#" class="back-home" onclick="event.preventDefault(); goToLanding()">← Volver al inicio</a>
+            </form>
+
+            <form id="form-register" class="form-panel" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="reg-username">Nombre de usuario</label>
+                    <input type="text" id="reg-username" required placeholder="Elige un nombre de usuario">
+                </div>
+                <div class="form-group">
+                    <label for="reg-nickname">Nickname</label>
+                    <input type="text" id="reg-nickname" required placeholder="Tu apodo artístico o público">
+                </div>
+                <div class="form-group">
+                    <label for="reg-dob">Fecha de nacimiento</label>
+                    <input type="date" id="reg-dob" required>
+                </div>
+                <button type="submit" class="auth-submit">Registrarse</button>
+                <a href="#" class="back-home" onclick="event.preventDefault(); goToLanding()">← Volver al inicio</a>
+            </form>
+        </div>
+    </div>
+
+    <!-- MENÚ LATERAL -->
+    <div class="drawer-backdrop" id="drawer-backdrop" onclick="closeSidebar()"></div>
+    <div class="sidebar-drawer" id="sidebar-drawer">
+        <div class="sidebar-header">
+            <h3 style="font-weight: 700;"><i class="fa-solid fa-bars"></i> Menú de Cuenta</h3>
+            <button class="close-modal" onclick="closeSidebar()">&times;</button>
+        </div>
+        <div class="sidebar-body">
+            <div class="sidebar-section">
+                <h4>Ajustes</h4>
+                <div class="sidebar-link" onclick="closeSidebar(); openSettingsModal()"><i class="fa-solid fa-gear"></i> Configuración</div>
+                <div class="sidebar-link" onclick="closeSidebar(); openProfileCustomizePage()"><i class="fa-solid fa-user"></i> Personalizar Perfil</div>
+                <div class="sidebar-link" onclick="closeSidebar(); openPrivacyModal()"><i class="fa-solid fa-shield-halved"></i> Privacidad</div>
+            </div>
+            <div class="sidebar-section">
+                <h4>Foros a los que te has unido</h4>
+                <div id="sidebar-joined-forums-list" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. DASHBOARD -->
+    <div id="dashboard-view" class="view">
+        <nav class="navbar">
+            <div class="nav-left-group">
+                <button class="menu-hamburger-btn" onclick="openSidebar()" title="Abrir menú"><i class="fa-solid fa-bars"></i></button>
+                <div class="nav-brand"><i class="fa-solid fa-music"></i> YM-ki Web</div>
+            </div>
+            <div class="nav-links" id="nav-links-container"></div>
+            <div class="nav-right">
+                <button class="notification-bell-btn" onclick="openNotificationsModal()" title="Notificaciones">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="notification-dot" id="nav-notif-dot" style="display: none;"></span>
+                </button>
+                <div class="coins-badge" onclick="openCoinsPage()" title="Ver YM-Coins">
+                    <i class="fa-solid fa-coins"></i>
+                    <span class="coins-count" id="nav-coins-count">1,250</span>
+                </div>
+                <button class="user-profile-btn" onclick="openProfileCustomizePage()" title="Personalizar perfil">
+                    <div class="user-avatar-wrapper">
+                        <img src="" alt="Avatar" class="user-avatar" id="nav-avatar">
+                        <div class="avatar-ring" id="nav-avatar-ring"></div>
+                    </div>
+                    <span class="user-name" id="nav-username">YM_User</span>
+                </button>
+                <button class="logout-btn" onclick="goToLanding()" title="Cerrar sesión"><i class="fa-solid fa-right-from-bracket"></i></button>
+            </div>
+        </nav>
+
+        <main id="main-content-container" style="flex: 1; display: flex; flex-direction: column;">
+            <!-- FOROS -->
+            <div id="section-foros" class="main-content content-section active">
+                <div class="forum-container" id="forum-main-wrapper" style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div class="forum-nav-tabs">
+                            <button class="forum-tab-btn active" id="tab-btn-feed" onclick="switchForumSubview('feed')"><i class="fa-solid fa-newspaper"></i> Publicaciones Globales</button>
+                            <button class="forum-tab-btn" id="tab-btn-panel" onclick="switchForumSubview('panel')"><i class="fa-solid fa-layer-group"></i> Panel de Foros</button>
+                        </div>
+                        <button class="btn" style="padding: 0.5rem 1.25rem; font-size: 0.9rem;" onclick="openCreateForumModal()"><i class="fa-solid fa-folder-plus"></i> Crear Foro</button>
+                    </div>
+
+                    <div id="forum-subview-feed" class="forum-subview active" style="margin-top: 1rem;">
+                        <div id="forum-detail-view-container" style="display: none;"></div>
+
+                        <div id="feed-main-container">
+                            <div class="create-post-bar" onclick="openCreatePostModal()">
+                                <img src="" alt="Avatar" id="feed-create-avatar">
+                                <div class="create-post-input-fake">¿Qué quieres compartir con la comunidad hoy?</div>
+                                <button class="btn" style="padding: 0.5rem 1.25rem; font-size: 0.9rem;"><i class="fa-solid fa-plus"></i> Publicar</button>
+                            </div>
+
+                            <div class="forum-filters" style="margin-top: 1rem;">
+                                <div class="filter-tags" id="tag-filters-container"></div>
+                                <div class="filter-sorts">
+                                    <button class="sort-btn active" onclick="sortBy('recent', this)"><i class="fa-solid fa-clock"></i> Recientes</button>
+                                    <button class="sort-btn" onclick="sortBy('old', this)"><i class="fa-solid fa-hourglass-start"></i> Viejos</button>
+                                    <button class="sort-btn" onclick="sortBy('controversial', this)"><i class="fa-solid fa-fire"></i> Controversiales</button>
+                                </div>
+                            </div>
+
+                            <div id="posts-feed" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;"></div>
+                        </div>
+                    </div>
+
+                    <div id="forum-subview-panel" class="forum-subview">
+                        <h2 style="font-size: 1.25rem; font-weight: 700;">Panel de Foros</h2>
+                        <p style="font-size: 0.9rem; color: var(--text-muted);">Organiza tus comunidades y descubre nuevas.</p>
+                        <div class="forums-group-title"><i class="fa-solid fa-bookmark" style="color: var(--primary);"></i> Foros a los que te has unido</div>
+                        <div class="forums-grid" id="forums-joined-grid"></div>
+                        <div class="forums-group-title" style="margin-top: 1.5rem;"><i class="fa-solid fa-compass" style="color: var(--accent);"></i> Descubrir otros foros</div>
+                        <div class="forums-grid" id="forums-discover-grid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHATS -->
+            <div id="section-chats" class="main-content content-section">
+                <div class="chats-layout" style="width: 100%;">
+                    <div class="chats-sidebar">
+                        <div class="chats-sidebar-header">
+                            <h3 style="font-size: 1rem; font-weight: 700;"><i class="fa-solid fa-comments"></i> Mensajes</h3>
+                            <button class="btn" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="openAddChatModal()" title="Nuevo chat"><i class="fa-solid fa-user-plus"></i></button>
+                        </div>
+                        <div class="chats-list" id="chats-contacts-list"></div>
+                    </div>
+                    <div class="chat-main-panel">
+                        <div class="chat-header" id="active-chat-header"></div>
+                        <div class="chat-messages-area" id="chat-messages-container"></div>
+                        <div class="chat-input-area">
+                            <input type="text" id="chat-message-input" placeholder="Escribe un mensaje..." onkeydown="handleChatKeydown(event)">
+                            <button class="btn" style="padding: 0.75rem 1.5rem;" onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AUDICIONES -->
+            <div id="section-audiciones" class="main-content content-section">
+                <div id="audition-panel-view" class="audition-panel-wrapper">
+                    <div class="audition-hero-card">
+                        <div>
+                            <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem;">Centro de Audiciones YM-ki</h2>
+                            <p>Da el gran salto hacia tu carrera artística. Postúlate en nuestras modalidades.</p>
+                        </div>
+                        <button class="btn" style="padding: 1rem 2.5rem; font-size: 1.1rem;" onclick="openAuditionFormPage()"><i class="fa-solid fa-paper-plane"></i> Postularse</button>
+                    </div>
+
+                    <div class="audition-rules-card">
+                        <h2><i class="fa-solid fa-book-open" style="color: var(--primary);"></i> Normas y Reglas Oficiales de Audición</h2>
+                        <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem;">
+                            <li><i class="fa-solid fa-circle-check" style="color: var(--primary);"></i> <strong>Edad:</strong> Todo aspirante debe ser mayor de 8 años cumplidos.</li>
+                            <li><i class="fa-solid fa-circle-check" style="color: var(--primary);"></i> <strong>Vocal/Rap:</strong> Archivos ilimitados (máximo 4 minutos en total con tolerancia de 10s).</li>
+                            <li><i class="fa-solid fa-circle-check" style="color: var(--primary);"></i> <strong>Originalidad:</strong> Material 100% interpretado por el postulante.</li>
+                        </ul>
+                    </div>
+
+                    <div class="audition-history-card">
+                        <h2><i class="fa-solid fa-clipboard-list" style="color: var(--accent);"></i> Mis Audiciones Enviadas y Respuestas</h2>
+                        <div id="audition-submissions-list" style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;"></div>
+                    </div>
+                </div>
+
+                <div id="audition-form-view" class="audition-form-page">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1rem; gap: 1rem; flex-wrap: wrap;">
+                        <h3 style="font-size: 1.5rem; font-weight: 800;"><i class="fa-solid fa-file-pen" style="color: var(--primary);"></i> Formulario Oficial de Postulación</h3>
+                        <button class="btn btn-outline" style="padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="closeAuditionFormPage()">← Volver</button>
+                    </div>
+                    <form id="form-audition-submit" onsubmit="handleAuditionSubmit(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label for="audition-modalidad">Seleccionar Modalidad</label>
+                            <select id="audition-modalidad" onchange="renderAuditionFields(this.value)" required>
+                                <option value="vocal-rap">Vocal / Rap</option>
+                                <option value="bailarin">Bailarín</option>
+                                <option value="staff">Staff</option>
+                                <option value="mixta">Mixta</option>
+                            </select>
+                        </div>
+                        <div id="dynamic-audition-fields" style="display: flex; flex-direction: column; gap: 1.25rem;"></div>
+                        <button type="submit" class="auth-submit"><i class="fa-solid fa-paper-plane"></i> Enviar Postulación al CEO</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- FANS -->
+            <div id="section-fans" class="main-content content-section">
+                <div id="fans-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h2 style="font-size: 1.5rem; font-weight: 800;"><i class="fa-solid fa-star" style="color: var(--coin-gold);"></i> Clubes de Fans Oficiales</h2>
+                        <p style="font-size: 0.9rem; color: var(--text-muted);">Apoya de cerca a tus artistas favoritos, únete a comunidades y descubre contenido exclusivo.</p>
+                    </div>
+                    <button class="btn" id="create-fan-club-btn" style="display: none;" onclick="openCreateFanClubModal()"><i class="fa-solid fa-plus"></i> Crear Club de Fans</button>
+                </div>
+
+                <div class="fans-grid" id="fan-clubs-grid"></div>
+
+                <div id="fan-club-detail-view" style="display: none; flex-direction: column; gap: 1.5rem;">
+                    <button class="btn btn-outline" style="align-self: flex-start; padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="closeFanClubDetail()">← Volver a Clubes</button>
+                    <div id="fan-club-detail-content" style="display:flex; flex-direction:column; gap:1.5rem;"></div>
+                </div>
+
+                <div id="artist-profile-amplified-view" style="display: none; flex-direction: column; gap: 1.5rem;">
+                    <button class="btn btn-outline" style="align-self: flex-start; padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="closeArtistAmplifiedView()">← Volver al Club</button>
+                    <div id="artist-amplified-content" class="modal-card" style="max-width: 100%;"></div>
+                </div>
+            </div>
+
+            <div id="section-tienda" class="main-content content-section"><div class="generic-placeholder"><i class="fa-solid fa-store section-icon"></i><h2>Tienda</h2><p>Mejoras y pases</p></div></div>
+            <div id="section-coins-page" class="main-content content-section"><div class="generic-placeholder"><i class="fa-solid fa-coins section-icon" style="color: var(--coin-gold);"></i><h2>Cartera</h2><p id="coins-page-amount">1,250 Coins</p><button class="btn" style="margin-top:1rem;" onclick="switchSection('foros')">← Volver</button></div></div>
+            <div id="section-profile-page" class="main-content content-section"><div class="generic-placeholder"><h2 id="profile-display-name">YM_User</h2><p id="profile-display-desc">Descripción</p><button class="btn" style="margin-top:1rem;" onclick="openProfileCustomizePage()">Personalizar Perfil</button></div></div>
+
+            <!-- PERSONALIZAR PERFIL -->
+            <div id="section-profile-customize" class="main-content content-section">
+                <div class="profile-edit-container" style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1rem; gap: 1rem; flex-wrap: wrap;">
+                        <h3 style="font-size: 1.5rem; font-weight: 800;"><i class="fa-solid fa-user-gear" style="color: var(--primary);"></i> Configuración y Perfil</h3>
+                        <button class="btn btn-outline" style="padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="switchSection('foros')">← Volver</button>
+                    </div>
+
+                    <div class="modal-form-group" id="artist-admin-customization-fields" style="display: none;">
+                        <label style="color: var(--primary); font-weight: bold;"><i class="fa-solid fa-star"></i> Opciones exclusivas de Artista / Administrador</label>
+                        <div style="margin-top: 0.5rem;" class="modal-form-group">
+                            <label for="profile-bg-color-input">Color de Fondo del Perfil</label>
+                            <input type="color" id="profile-bg-color-input" value="#1e293b">
+                        </div>
+                        <div style="margin-top: 0.75rem;" class="modal-form-group">
+                            <label>Importar Marco Transparente (PNG)</label>
+                            <input type="file" id="profile-frame-file" accept="image/png" onchange="pickImage(this, 'pfFrame', 'frame-preview', 256, 256, 'image/png')">
+                            <div id="frame-preview" class="img-preview"></div>
+                        </div>
+                        <div style="margin-top: 0.75rem; display: flex; gap: 1rem;">
+                            <div style="flex: 1;" class="modal-form-group">
+                                <label for="badge-admin-color-input">Color Corona / Micrófono</label>
+                                <input type="color" id="badge-admin-color-input" value="#ec4899">
+                            </div>
+                            <div style="flex: 1;" class="modal-form-group">
+                                <label for="badge-verified-color-input">Color Verificado</label>
+                                <input type="color" id="badge-verified-color-input" value="#38bdf8">
+                            </div>
+                        </div>
+                        <div style="margin-top: 0.75rem;" class="modal-form-group">
+                            <label for="artist-animal-input">Animal Representativo</label>
+                            <input type="text" id="artist-animal-input" placeholder="Ej: Zorro 🦊">
+                        </div>
+                        <div style="margin-top: 0.75rem;" class="modal-form-group">
+                            <label style="display:flex; align-items:center; gap:0.5rem; color: var(--text-main);"><input type="checkbox" id="artist-allow-messages" checked> Permitir mensajes de fans</label>
+                        </div>
+                    </div>
+
+                    <form id="form-profile-edit" onsubmit="handleProfilePageSubmit(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                        <div class="modal-form-group">
+                            <label>Banner del Perfil (haz clic para importar una imagen)</label>
+                            <div class="profile-banner-preview" id="page-banner-preview" data-mode="bg" onclick="document.getElementById('profile-banner-file').click()">
+                                <span>Cambiar banner</span>
+                            </div>
+                            <input type="file" id="profile-banner-file" accept="image/*" style="display: none;" onchange="pickImage(this, 'pfBanner', 'page-banner-preview', 1000, 400)">
+                        </div>
+
+                        <div class="modal-form-group">
+                            <label>Foto de Perfil / Avatar (haz clic para importar)</label>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div class="profile-avatar-preview-box" id="page-avatar-preview" data-mode="bg" onclick="document.getElementById('profile-avatar-file').click()">
+                                    <span>Avatar</span>
+                                </div>
+                                <input type="file" id="profile-avatar-file" accept="image/*" style="display: none;" onchange="pickImage(this, 'pfAvatar', 'page-avatar-preview', 256, 256)">
+                                <div style="flex: 1;" class="modal-form-group">
+                                    <label for="profile-ring-color-input">Color del Marco</label>
+                                    <input type="color" id="profile-ring-color-input" value="#6366f1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-form-group">
+                            <label for="profile-username-input">Nombre de usuario</label>
+                            <input type="text" id="profile-username-input" required>
+                        </div>
+                        <div class="modal-form-group">
+                            <label for="profile-nickname-input">Nickname</label>
+                            <input type="text" id="profile-nickname-input" required>
+                        </div>
+                        <div class="modal-form-group">
+                            <label for="profile-desc-textarea">Descripción personal</label>
+                            <textarea id="profile-desc-textarea" placeholder="Escribe algo sobre ti..."></textarea>
+                        </div>
+                        <button type="submit" class="auth-submit"><i class="fa-solid fa-floppy-disk"></i> Guardar Cambios</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ================= MODALES ================= -->
+
+    <!-- Crear publicación -->
+    <div id="create-post-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header"><h3>Crear Publicación</h3><button class="close-modal" onclick="closeCreatePostModal()">&times;</button></div>
+            <form id="form-create-post" onsubmit="handleCreatePost(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="modal-form-group"><label>Foro</label><select id="post-forum-select" required></select></div>
+                <div class="modal-form-group">
+                    <label>Tipo de Publicación</label>
+                    <select id="post-type-select">
+                        <option value="normal">Normal</option>
+                        <option value="poll">📊 Encuesta</option>
+                        <option value="announcement" id="post-type-announcement-option">📢 Anuncio Oficial (Fijado)</option>
+                    </select>
+                </div>
+                <div class="modal-form-group"><label>Etiqueta</label><input type="text" id="post-tag-input" required placeholder="Ej: Música"></div>
+                <div class="modal-form-group"><label>Título</label><input type="text" id="post-title" required></div>
+                <div class="modal-form-group"><label>Contenido</label><textarea id="post-content" required></textarea></div>
+                <button type="submit" class="auth-submit">Publicar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Crear foro -->
+    <div id="create-forum-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header"><h3>Crear Foro</h3><button class="close-modal" onclick="closeCreateForumModal()">&times;</button></div>
+            <form id="form-create-forum" onsubmit="handleCreateForum(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="modal-form-group"><label>Nombre</label><input type="text" id="forum-name" required></div>
+                <div class="modal-form-group"><label>Descripción</label><textarea id="forum-desc" required></textarea></div>
+                <div class="modal-form-group"><label>Banner (importar imagen, opcional)</label><input type="file" accept="image/*" onchange="pickImage(this, 'cfBanner', 'cf-banner-preview', 900, 300)"><div id="cf-banner-preview" class="img-preview"></div></div>
+                <div class="modal-form-group"><label>Foto del foro (importar imagen, opcional)</label><input type="file" accept="image/*" onchange="pickImage(this, 'cfAvatar', 'cf-avatar-preview', 256, 256)"><div id="cf-avatar-preview" class="img-preview"></div></div>
+                <button type="submit" class="auth-submit">Crear</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Editar foro -->
+    <div id="edit-forum-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header"><h3>Editar Foro / Fondo</h3><button class="close-modal" onclick="closeEditForumModal()">&times;</button></div>
+            <form id="form-edit-forum" onsubmit="handleEditForumSubmit(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+                <input type="hidden" id="edit-forum-id">
+                <div class="modal-form-group"><label>Nombre</label><input type="text" id="edit-forum-name" required></div>
+                <div class="modal-form-group"><label>Banner (importar imagen)</label><input type="file" accept="image/*" onchange="pickImage(this, 'efBanner', 'ef-banner-preview', 900, 300)"><div id="ef-banner-preview" class="img-preview"></div></div>
+                <div class="modal-form-group"><label>Foto del foro (importar imagen)</label><input type="file" accept="image/*" onchange="pickImage(this, 'efAvatar', 'ef-avatar-preview', 256, 256)"><div id="ef-avatar-preview" class="img-preview"></div></div>
+                <div class="modal-form-group">
+                    <label>Fondo de Página Completa</label>
+                    <select id="edit-bg-type" onchange="toggleForumBgInputs()">
+                        <option value="solid">Color sólido</option>
+                        <option value="gradient">Degradado</option>
+                        <option value="image">Imagen (importar)</option>
+                    </select>
+                </div>
+                <div class="modal-form-group" id="edit-bg-color-group"><label>Color del fondo</label><input type="color" id="edit-bg-value" value="#0f172a"></div>
+                <div class="modal-form-group" id="edit-bg-image-group" style="display:none;"><label>Imagen de fondo</label><input type="file" accept="image/*" onchange="pickImage(this, 'efBg', 'ef-bg-preview', 1400, 900)"><div id="ef-bg-preview" class="img-preview"></div></div>
+                <button type="submit" class="auth-submit">Guardar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Configuración -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 420px;">
+            <div class="modal-header"><h3><i class="fa-solid fa-gear"></i> Configuración de Cuenta</h3><button class="close-modal" onclick="closeSettingsModal()">&times;</button></div>
+
+            <div class="modal-form-group">
+                <label>Tipo de Cuenta</label>
+                <select id="account-type-select" onchange="handleAccountTypeChange(this.value)">
+                    <option value="fan">Fan / Normal</option>
+                    <option value="artista">Artista</option>
+                    <option value="admin">Administrador</option>
+                </select>
+            </div>
+
+            <div class="modal-form-group" id="account-verification-group" style="display: none;">
+                <label id="verification-label">Clave / Código</label>
+                <input type="password" id="account-verification-input" placeholder="Ingresa el código requerido">
+                <button type="button" class="btn" style="margin-top: 0.5rem; width: 100%; font-size: 0.85rem;" onclick="verifyAccountUpgrade()">Verificar y Aplicar</button>
+            </div>
+
+            <div class="modal-form-group">
+                <label>Tema</label>
+                <select id="settings-theme-select" onchange="changeTheme(this.value)">
+                    <option value="dark">Oscuro</option>
+                    <option value="light">Claro</option>
+                </select>
+            </div>
+
+            <div class="modal-form-group">
+                <label>Color Principal de Botones</label>
+                <div id="primary-color-palette" class="color-palette"></div>
+                <div id="admin-artist-color-picker-container" style="display: none; margin-top: 0.75rem;">
+                    <label for="advanced-color-picker" style="font-size: 0.8rem;">Color personalizado avanzado</label>
+                    <input type="color" id="advanced-color-picker" value="#6366f1" onchange="changePrimaryColor(this.value)">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificaciones -->
+    <div id="notifications-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 450px;">
+            <div class="modal-header"><h3>Notificaciones</h3><button class="close-modal" onclick="closeNotificationsModal()">&times;</button></div>
+            <div id="notifications-list" style="display:flex; flex-direction:column; gap:0.5rem;"></div>
+        </div>
+    </div>
+
+    <!-- Vista previa de perfil -->
+    <div id="user-profile-preview-modal" class="modal-overlay" onclick="closeUserProfilePreview()">
+        <div class="profile-preview-card" onclick="event.stopPropagation()">
+            <button class="close-modal" style="position: absolute; top: 1rem; right: 1rem;" onclick="closeUserProfilePreview()">&times;</button>
+            <div class="profile-preview-avatar-wrapper">
+                <img id="preview-user-avatar" src="" alt="" class="profile-preview-avatar">
+                <div id="preview-user-ring" class="profile-preview-ring"></div>
+            </div>
+            <h3 id="preview-user-name" style="font-size: 1.25rem;">Usuario</h3>
+            <p id="preview-user-desc" style="font-size: 0.9rem; color: var(--text-muted);">Descripción...</p>
+            <div style="display: flex; gap: 0.5rem; width: 100%; margin-top: 1rem; flex-wrap: wrap;">
+                <button class="btn" style="flex: 1; font-size: 0.85rem;" onclick="sendFriendRequest()"><i class="fa-solid fa-user-plus"></i> Amigos</button>
+                <button class="btn btn-outline" style="flex: 1; font-size: 0.85rem; border-color: var(--danger); color: var(--danger);" onclick="reportUser()"><i class="fa-solid fa-flag"></i> Reportar</button>
+                <button class="btn" style="width: 100%; font-size: 0.85rem; background-color: var(--verified-blue);" onclick="openDirectMessageFromProfile()"><i class="fa-solid fa-paper-plane"></i> Enviar Mensaje</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detalle de publicación -->
+    <div id="post-detail-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 650px;">
+            <div class="modal-header"><h3>Detalle de la Publicación</h3><button class="close-modal" onclick="closePostDetailModal()">&times;</button></div>
+            <div id="modal-post-content-area" style="display: flex; flex-direction: column; gap: 1rem;"></div>
+            <hr style="border-color: var(--border);">
+            <h4 style="font-size: 1rem;">Comentarios</h4>
+            <div id="modal-comments-list" style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem;"></div>
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                <input type="text" id="new-comment-input" placeholder="Escribe un comentario..." onkeydown="if(event.key==='Enter'){event.preventDefault();submitComment();}" style="flex: 1; padding: 0.5rem 0.75rem; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 0.5rem; color: var(--text-main);">
+                <button class="btn" style="padding: 0.5rem 1.25rem;" onclick="submitComment()">Comentar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Crear club de fans -->
+    <div id="create-fan-club-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 560px;">
+            <div class="modal-header"><h3>Crear Club de Fans</h3><button class="close-modal" onclick="closeCreateFanClubModal()">&times;</button></div>
+            <form id="form-create-fan-club" onsubmit="handleCreateFanClub(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="modal-form-group"><label>Nombre del Club de Fans</label><input type="text" id="fc-name" required placeholder="Ej: Starlight Official"></div>
+                <div class="modal-form-group"><label>Nombre del Fandom</label><input type="text" id="fc-fandom" required placeholder="Ej: Starlights"></div>
+                <div class="modal-form-group">
+                    <label>Artista/s asociados (escribe el usuario y presiona Enter para agregar)</label>
+                    <input type="text" id="fc-artist-input" placeholder="Ej: AlexBeats (Enter para añadir)" onkeydown="handleArtistInputKeydown(event)">
+                    <div id="fc-artists-tags-container" style="display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.5rem;"></div>
+                </div>
+                <div class="modal-form-group"><label>Administrador / Manager (privado)</label><input type="text" id="fc-manager" required placeholder="Tu usuario actual u otro manager"></div>
+                <div class="modal-form-group"><label>Costo por mensaje al artista (monedas)</label><input type="number" id="fc-price" min="0" required placeholder="Ej: 50"></div>
+                <div class="modal-form-group"><label>Icono de la etiqueta de fandom (importar imagen)</label><input type="file" id="fc-tag-icon-file" accept="image/*" onchange="pickImage(this, 'fcIcon', 'fc-icon-preview', 128, 128, 'image/png')"><div id="fc-icon-preview" class="img-preview"></div></div>
+                <div class="modal-form-group"><label>Descripción</label><textarea id="fc-desc" required></textarea></div>
+                <div class="modal-form-group"><label>Banner (importar imagen)</label><input type="file" id="fc-banner-file" accept="image/*" onchange="pickImage(this, 'fcBanner', 'fc-banner-preview', 900, 300)"><div id="fc-banner-preview" class="img-preview"></div></div>
+                <div class="modal-form-group"><label>Foto de perfil del club (importar imagen)</label><input type="file" id="fc-avatar-file" accept="image/*" onchange="pickImage(this, 'fcAvatar', 'fc-avatar-preview', 256, 256)"><div id="fc-avatar-preview" class="img-preview"></div></div>
+                <button type="submit" class="auth-submit">Crear Club de Fans</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Editar info del club -->
+    <div id="edit-club-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 520px;">
+            <div class="modal-header"><h3>Editar Información del Club</h3><button class="close-modal" onclick="closeEditClubModal()">&times;</button></div>
+            <form onsubmit="saveClubInfo(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+                <input type="hidden" id="edit-club-id">
+                <div class="modal-form-group"><label>Nombre del club</label><input type="text" id="edit-club-name" required></div>
+                <div class="modal-form-group"><label>Descripción</label><textarea id="edit-club-desc" required></textarea></div>
+                <div class="modal-form-group"><label>Costo por mensaje (monedas)</label><input type="number" id="edit-club-price" min="0" required></div>
+                <div class="modal-form-group"><label>Nuevo banner (importar imagen)</label><input type="file" id="edit-club-banner-file" accept="image/*" onchange="pickImage(this, 'ecBanner', 'edit-club-banner-preview', 900, 300)"><div id="edit-club-banner-preview" class="img-preview"></div></div>
+                <div class="modal-form-group"><label>Nueva foto de perfil (importar imagen)</label><input type="file" id="edit-club-avatar-file" accept="image/*" onchange="pickImage(this, 'ecAvatar', 'edit-club-avatar-preview', 256, 256)"><div id="edit-club-avatar-preview" class="img-preview"></div></div>
+                <button type="submit" class="auth-submit">Guardar cambios</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Foro privado -->
+    <div id="private-forum-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 400px;">
+            <div class="modal-header"><h3>Nuevo Foro Privado</h3><button class="close-modal" onclick="closePrivateForumModal()">&times;</button></div>
+            <form onsubmit="savePrivateForum(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+                <input type="hidden" id="private-forum-club-id">
+                <div class="modal-form-group"><label>Nombre del foro privado</label><input type="text" id="private-forum-name" required></div>
+                <button type="submit" class="auth-submit">Añadir foro</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Editar artista -->
+    <div id="edit-artist-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 400px;">
+            <div class="modal-header"><h3>Editar Perfil de Artista</h3><button class="close-modal" onclick="closeEditArtistModal()">&times;</button></div>
+            <form onsubmit="saveArtistDetails(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+                <input type="hidden" id="edit-artist-name">
+                <div class="modal-form-group"><label>Animal representativo</label><input type="text" id="edit-artist-animal" placeholder="Ej: Zorro 🦊"></div>
+                <div class="modal-form-group"><label style="display:flex; align-items:center; gap:0.5rem; color: var(--text-main);"><input type="checkbox" id="edit-artist-allow"> Admitir mensajes de fans</label></div>
+                <button type="submit" class="auth-submit">Guardar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Mensaje pagado -->
+    <div id="paid-message-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 450px;">
+            <div class="modal-header"><h3 id="paid-modal-title">Enviar Mensaje al Artista</h3><button class="close-modal" onclick="closePaidMessageModal()">&times;</button></div>
+            <p style="font-size: 0.85rem; color: var(--text-muted);" id="paid-modal-cost-text">Costo por mensaje: </p>
+            <div class="modal-form-group"><label>Tu mensaje</label><textarea id="paid-msg-content" placeholder="Escribe tu mensaje especial para el artista..."></textarea></div>
+            <button class="btn" onclick="submitPaidArtistMessage()">Pagar y Enviar Mensaje</button>
+        </div>
+    </div>
+
+    <!-- Editar etiqueta de fandom -->
+    <div id="edit-fandom-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 400px;">
+            <div class="modal-header"><h3>Editar Etiqueta de Fandom</h3><button class="close-modal" onclick="closeEditFandomModal()">&times;</button></div>
+            <input type="hidden" id="edit-fandom-club-id">
+            <div class="modal-form-group"><label>Nombre del Fandom</label><input type="text" id="edit-fandom-name-input" placeholder="Nuevo nombre del fandom"></div>
+            <div class="modal-form-group"><label>Color de la Etiqueta</label><input type="color" id="edit-fandom-color-input" value="#ec4899"></div>
+            <div class="modal-form-group">
+                <label>Importar Icono / Imagen (PNG/JPG)</label>
+                <input type="file" id="edit-fandom-icon-file" accept="image/*" onchange="pickImage(this, 'efIcon', 'edit-fandom-icon-preview', 128, 128, 'image/png')">
+                <div id="edit-fandom-icon-preview" class="img-preview"></div>
+                <button type="button" class="btn btn-outline" style="margin-top:0.5rem; padding:0.3rem 0.8rem; font-size:0.8rem;" onclick="removeFandomIcon()">Quitar icono</button>
+            </div>
+            <button class="btn" onclick="saveFandomTagChanges()">Guardar Cambios</button>
+        </div>
+    </div>
+
+    <!-- Nuevo chat -->
+    <div id="add-chat-modal" class="modal-overlay">
+        <div class="modal-card" style="max-width: 400px;">
+            <div class="modal-header"><h3>Nuevo Chat</h3><button class="close-modal" onclick="closeAddChatModal()">&times;</button></div>
+            <form onsubmit="submitAddChat(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="modal-form-group"><label>Nombre de usuario</label><input type="text" id="add-chat-username" required placeholder="Ej: AlexBeats"></div>
+                <button type="submit" class="auth-submit">Iniciar chat</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script>
+        /* ===================== UTILIDADES ===================== */
+        const DEFAULT_AVATAR = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces';
+        const DEFAULT_BANNER = 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&h=200&fit=crop';
+        const DEFAULT_FORUM_AVATAR = 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=100&h=100&fit=crop';
+
+        function esc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+        // Convierte un valor en un literal JS seguro para usar dentro de atributos onclick="..."
+        function jsq(s) { return esc(JSON.stringify(String(s))); }
+        function load(key, fallback) {
+            try { const v = JSON.parse(localStorage.getItem(key)); return v == null ? fallback : v; }
+            catch (e) { return fallback; }
+        }
+        function toast(msg) {
+            const box = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.textContent = msg;
+            box.appendChild(t);
+            setTimeout(() => t.remove(), 3200);
+        }
+
+        /* ===================== IMPORTACIÓN DE IMÁGENES ===================== */
+        const pending = {}; // imágenes elegidas y aún no guardadas
+
+        function fileToDataURL(file, maxW, maxH, mime) {
+            return new Promise((resolve, reject) => {
+                if (!file || !file.type.startsWith('image/')) { reject(new Error('El archivo no es una imagen válida.')); return; }
+                const reader = new FileReader();
+                reader.onerror = () => reject(new Error('No se pudo leer el archivo.'));
+                reader.onload = () => {
+                    const img = new Image();
+                    img.onerror = () => reject(new Error('No se pudo cargar la imagen.'));
+                    img.onload = () => {
+                        const ratio = Math.min(1, maxW / img.width, maxH / img.height);
+                        const c = document.createElement('canvas');
+                        c.width = Math.max(1, Math.round(img.width * ratio));
+                        c.height = Math.max(1, Math.round(img.height * ratio));
+                        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+                        resolve(c.toDataURL(mime, 0.85));
+                    };
+                    img.src = reader.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function pickImage(input, key, previewId, maxW, maxH, mime) {
+            const f = input.files && input.files[0];
+            if (!f) return;
+            try {
+                const url = await fileToDataURL(f, maxW || 800, maxH || 800, mime || 'image/jpeg');
+                pending[key] = url;
+                showPreview(previewId, url);
+            } catch (e) {
+                toast(e.message);
+                input.value = '';
+            }
+        }
+
+        function showPreview(id, url) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (el.dataset.mode === 'bg') {
+                el.style.backgroundImage = `url("${url}")`;
+                const s = el.querySelector('span'); if (s) s.style.display = 'none';
+            } else {
+                el.innerHTML = `<img src="${url}" alt="" style="max-height:64px; max-width:100%; border-radius:0.4rem; background: var(--bg-dark);">`;
+            }
+        }
+        function clearPreview(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (el.dataset.mode === 'bg') {
+                el.style.backgroundImage = 'none';
+                const s = el.querySelector('span'); if (s) s.style.display = '';
+            } else { el.innerHTML = ''; }
+        }
+        function resetPending(keys, previewIds, fileInputIds) {
+            keys.forEach(k => { pending[k] = null; });
+            (previewIds || []).forEach(clearPreview);
+            (fileInputIds || []).forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
+        }
+
+        /* ===================== ESTADO ===================== */
+        let currentRole = 'aspirante';
+        let currentUsername = 'YM_User';
+        let currentTagFilter = 'all';
+        let currentSortMode = 'recent';
+        let activeForumFilter = null;
+        let viewingUserId = null;
+        let currentOpenPostId = null;
+
+        let adminUsers = load('ym_admins', ['Administración', 'CEO Miki', 'Admin']);
+
+        function defaultProfile(username) {
+            return {
+                avatar: DEFAULT_AVATAR, banner: DEFAULT_BANNER,
+                description: 'Perfil de usuario y configuración de cuenta',
+                ringColor: '#6366f1', nickname: username, isArtist: false,
+                profileBgColor: '#1e293b', transparentFrame: null,
+                badgeAdminColor: '#ec4899', badgeVerifiedColor: '#38bdf8',
+                animal: 'Zorro 🦊', allowMessages: true, coins: 1250, dob: '', auditions: []
+            };
+        }
+        function getProfilesDB() { return load('ym_user_profiles', {}); }
+        function getProfileOf(username) {
+            if (username === currentUsername) return userProfile;
+            return Object.assign(defaultProfile(username), getProfilesDB()[username] || {});
+        }
+        function loadUserProfile(username) {
+            userProfile = Object.assign(defaultProfile(username), getProfilesDB()[username] || {});
+        }
+        function avatarFor(username, fallback) {
+            const known = username === currentUsername || getProfilesDB()[username];
+            return (known && getProfileOf(username).avatar) || fallback || DEFAULT_AVATAR;
+        }
+        function updateProfileOf(username, patch) {
+            if (username === currentUsername) { Object.assign(userProfile, patch); saveToLocalStorage(); return; }
+            const db = getProfilesDB();
+            db[username] = Object.assign(defaultProfile(username), db[username] || {}, patch);
+            try { localStorage.setItem('ym_user_profiles', JSON.stringify(db)); } catch (e) { toast('No hay espacio para guardar los cambios.'); }
+        }
+
+        let userProfile = defaultProfile(currentUsername);
+
+        // Tema y color guardados
+        (function applySavedTheme() {
+            if (localStorage.getItem('ym_theme') === 'light') document.body.classList.add('light-theme');
+            const c = localStorage.getItem('ym_primary_color');
+            if (c) document.documentElement.style.setProperty('--primary', c);
+        })();
+
+        let forumsData = load('ym_forums', [
+            { id: 'general', name: 'General', description: 'Foro principal.', banner: DEFAULT_BANNER, avatar: DEFAULT_FORUM_AVATAR, creator: 'Administración', followers: 15400, isJoined: true, bgType: 'solid', bgValue: '#0f172a', isOfficial: true }
+        ]);
+        let postsData = load('ym_posts', [
+            { id: 1, author: 'Sofia Vocal', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces', forumId: 'general', forumName: 'General', tag: 'Música', title: 'Tips de afinación', content: 'Practica la respiración diafragmática.', type: 'normal', timestamp: new Date().toISOString(), likes: 10, dislikes: 1, myReaction: null, comments: [], pollVotes: { option1: 0, option2: 0 }, pollVoters: [] }
+        ]);
+        let fanClubsData = load('ym_fan_clubs', []);
+        let chatsData = load('ym_chats', [
+            { name: 'Alex Beats', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces', messages: [
+                { from: 'in', text: '¡Hola! Bienvenid@ a YM-ki Web. ¿Listo para la música?' },
+                { from: 'out', text: '¡Hola Alex! Sí, ya tengo listas mis notas vocales.' }
+            ] }
+        ]);
+        let activeChatName = chatsData.length ? chatsData[0].name : null;
+
+        let tempAssociatedArtists = [];
+        let editingFandomClubId = null;
+        let activeClubId = null;
+        let currentPaidArtistName = null;
+        let currentClubPrice = 0;
+
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('ym_forums', JSON.stringify(forumsData));
+                localStorage.setItem('ym_posts', JSON.stringify(postsData));
+                localStorage.setItem('ym_admins', JSON.stringify(adminUsers));
+                localStorage.setItem('ym_fan_clubs', JSON.stringify(fanClubsData));
+                localStorage.setItem('ym_chats', JSON.stringify(chatsData));
+                const db = getProfilesDB();
+                db[currentUsername] = userProfile;
+                localStorage.setItem('ym_user_profiles', JSON.stringify(db));
+            } catch (e) {
+                toast('Almacenamiento lleno: usa imágenes más pequeñas.');
+            }
+        }
+
+        /* ===================== NAVEGACIÓN / AUTH ===================== */
+        function hideAllViews() { document.querySelectorAll('.view').forEach(v => v.classList.remove('active')); }
+
+        function goToLanding() {
+            localStorage.removeItem('ym_current_user');
+            closeSidebar();
+            document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+            hideAllViews();
+            document.getElementById('landing-view').classList.add('active');
+        }
+        function goToAuth(role) {
+            currentRole = role;
+            hideAllViews();
+            document.getElementById('auth-view').classList.add('active');
+            switchTab('login');
+        }
+        function switchTab(tab) {
+            document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+            document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+            document.getElementById('form-login').classList.toggle('active', tab === 'login');
+            document.getElementById('form-register').classList.toggle('active', tab === 'register');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const val = document.getElementById('login-id').value.trim();
+            if (!val) return;
+            currentUsername = val.split('@')[0].trim() || val;
+            loadUserProfile(currentUsername);
+            localStorage.setItem('ym_current_user', currentUsername);
+            saveToLocalStorage();
+            if (isUserAdmin(currentUsername)) toast('¡Has iniciado sesión como Administrador!');
+            loadDashboard();
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const reg = document.getElementById('reg-username').value.trim();
+            if (!reg) return;
+            if (getProfilesDB()[reg]) { toast('Ese nombre de usuario ya existe. Elige otro o inicia sesión.'); return; }
+            currentUsername = reg;
+            userProfile = defaultProfile(reg);
+            userProfile.nickname = document.getElementById('reg-nickname').value.trim() || reg;
+            userProfile.dob = document.getElementById('reg-dob').value;
+            localStorage.setItem('ym_current_user', currentUsername);
+            saveToLocalStorage();
+            toast('¡Registro exitoso!');
+            loadDashboard();
+        }
+
+        /* ===================== ROLES Y ETIQUETAS ===================== */
+        function isUserAdmin(username) { return adminUsers.includes(username); }
+        function isUserArtist(username) {
+            if (isUserAdmin(username)) return true;
+            return load('ym_artists', []).includes(username) || !!getProfileOf(username).isArtist;
+        }
+
+        function renderFandomBadge(club, label = 'Fandom: ') {
+            const icon = club.tagIconImg ? `<img src="${esc(club.tagIconImg)}" alt="">` : esc(club.tagIcon || '⭐');
+            const colorStyle = club.tagColor ? `background-color: ${esc(club.tagColor)}; color: #fff; border-color: ${esc(club.tagColor)};` : '';
+            return `<span class="fandom-badge-pill" style="${colorStyle}">${icon} ${esc(label)}${esc(club.fandomName)}</span>`;
+        }
+
+        function renderUserBadges(username) {
+            let badges = '';
+            const prof = getProfileOf(username);
+            const adminColor = esc(prof.badgeAdminColor || '#ec4899');
+            const verifiedColor = esc(prof.badgeVerifiedColor || '#38bdf8');
+
+            if (isUserAdmin(username)) {
+                badges += `<i class="fa-solid fa-crown" style="color: ${adminColor}; margin-left: 0.3rem;" title="Administrador"></i>`;
+                badges += `<i class="fa-solid fa-circle-check" style="color: ${verifiedColor}; margin-left: 0.3rem;" title="Verificado"></i>`;
+            } else if (isUserArtist(username)) {
+                badges += `<i class="fa-solid fa-microphone" style="color: ${adminColor}; margin-left: 0.3rem;" title="Artista"></i>`;
+                badges += `<i class="fa-solid fa-circle-check" style="color: ${verifiedColor}; margin-left: 0.3rem;" title="Verificado"></i>`;
+            }
+
+            fanClubsData.forEach(club => {
+                if (club.members && club.members.includes(username)) {
+                    const bg = esc(club.tagColor || '#ec4899');
+                    const icon = club.tagIconImg ? `<img src="${esc(club.tagIconImg)}" alt="">` : esc(club.tagIcon || '⭐');
+                    badges += ` <span class="fandom-badge-pill" style="margin-left:0.3rem; font-size: 0.7rem; padding: 0.1rem 0.5rem; background-color: ${bg}; color: #fff; border: none;">${icon} ${esc(club.fandomName)}</span>`;
+                }
+            });
+            return badges;
+        }
+
+        function updateUserUI() {
+            const displayName = userProfile.nickname || currentUsername;
+            document.getElementById('nav-username').innerHTML = esc(displayName) + renderUserBadges(currentUsername);
+
+            const dispName = document.getElementById('profile-display-name');
+            if (dispName) dispName.innerHTML = esc(displayName) + ' ' + renderUserBadges(currentUsername);
+            const dispDesc = document.getElementById('profile-display-desc');
+            if (dispDesc) dispDesc.textContent = userProfile.description;
+
+            document.getElementById('nav-avatar').src = userProfile.avatar;
+            const feedAvatar = document.getElementById('feed-create-avatar');
+            if (feedAvatar) feedAvatar.src = userProfile.avatar;
+
+            const ring = document.getElementById('nav-avatar-ring');
+            if (ring) {
+                ring.style.borderColor = userProfile.ringColor;
+                ring.style.backgroundImage = userProfile.transparentFrame ? `url("${userProfile.transparentFrame}")` : 'none';
+            }
+            const coins = (userProfile.coins || 0).toLocaleString('es-MX');
+            document.getElementById('nav-coins-count').textContent = coins;
+            document.getElementById('coins-page-amount').textContent = coins + ' Coins';
+        }
+
+        function loadDashboard() {
+            hideAllViews();
+            document.getElementById('dashboard-view').classList.add('active');
+            updateUserUI();
+
+            document.getElementById('nav-links-container').innerHTML = `
+                <button class="nav-item" data-section="foros" onclick="switchSection('foros', this)"><i class="fa-solid fa-comments"></i> Foros</button>
+                <button class="nav-item" data-section="audiciones" onclick="switchSection('audiciones', this)"><i class="fa-solid fa-microphone-lines"></i> Audiciones</button>
+                <button class="nav-item" data-section="chats" onclick="switchSection('chats', this)"><i class="fa-solid fa-message"></i> Chats</button>
+                <button class="nav-item" data-section="fans" onclick="switchSection('fans', this)"><i class="fa-solid fa-star"></i> Fans</button>
+                <button class="nav-item" data-section="tienda" onclick="switchSection('tienda', this)"><i class="fa-solid fa-store"></i> Tienda</button>
+            `;
+            const seen = localStorage.getItem('ym_notif_seen_' + currentUsername);
+            document.getElementById('nav-notif-dot').style.display = seen ? 'none' : 'block';
+            switchSection('foros');
+        }
+
+        function switchSection(name, btn) {
+            document.querySelectorAll('.main-content').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.section === name));
+            document.getElementById('section-' + name).classList.add('active');
+            if (name === 'foros') switchForumSubview('feed');
+            if (name === 'fans') { resetFanViews(); renderFanClubsGrid(); }
+            if (name === 'chats') renderChats();
+            if (name === 'audiciones') { closeAuditionFormPage(); renderAuditionSubmissions(); }
+            window.scrollTo(0, 0);
+        }
+
+        function openCoinsPage() { updateUserUI(); switchSection('coins-page'); }
+
+        function openSidebar() {
+            document.getElementById('sidebar-drawer').classList.add('open');
+            document.getElementById('drawer-backdrop').classList.add('active');
+            renderSidebarJoinedForums();
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar-drawer').classList.remove('open');
+            document.getElementById('drawer-backdrop').classList.remove('active');
+        }
+        function renderSidebarJoinedForums() {
+            const container = document.getElementById('sidebar-joined-forums-list');
+            container.innerHTML = '';
+            const joined = forumsData.filter(f => f.isJoined);
+            if (joined.length === 0) { container.innerHTML = `<span style="font-size: 0.85rem; color: var(--text-muted);">Sin foros unidos.</span>`; return; }
+            joined.forEach(f => {
+                const link = document.createElement('div');
+                link.className = 'sidebar-link';
+                link.innerHTML = `<img src="${esc(f.avatar)}" alt="" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;"> <span>${esc(f.name)}</span>`;
+                link.onclick = () => { closeSidebar(); switchSection('foros'); openForumDetail(f.id); };
+                container.appendChild(link);
+            });
+        }
+
+        /* ===================== FOROS ===================== */
+        function switchForumSubview(subview) {
+            document.querySelectorAll('.forum-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.forum-subview').forEach(s => s.classList.remove('active'));
+            document.getElementById('feed-main-container').style.display = 'block';
+
+            if (subview === 'feed') {
+                document.getElementById('tab-btn-feed').classList.add('active');
+                document.getElementById('forum-subview-feed').classList.add('active');
+                activeForumFilter = null;
+                document.getElementById('forum-detail-view-container').style.display = 'none';
+                const w = document.getElementById('forum-main-wrapper');
+                w.style.background = 'none'; w.style.padding = '0';
+                renderTags(); renderPosts();
+            } else if (subview === 'panel') {
+                document.getElementById('tab-btn-panel').classList.add('active');
+                document.getElementById('forum-subview-panel').classList.add('active');
+                renderForumsPanel();
+            }
+        }
+
+        function sortBy(mode, btn) {
+            currentSortMode = mode;
+            document.querySelectorAll('.filter-sorts .sort-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderPosts();
+        }
+
+        function renderForumsPanel() {
+            const joinedContainer = document.getElementById('forums-joined-grid');
+            const discoverContainer = document.getElementById('forums-discover-grid');
+            joinedContainer.innerHTML = ''; discoverContainer.innerHTML = '';
+            forumsData.filter(f => f.isJoined).forEach(f => joinedContainer.appendChild(createForumCardElement(f, true)));
+            forumsData.filter(f => !f.isJoined).forEach(f => discoverContainer.appendChild(createForumCardElement(f, false)));
+        }
+
+        function createForumCardElement(forum, isJoined) {
+            const isOfficial = adminUsers.includes(forum.creator) || forum.isOfficial;
+            const canManage = forum.creator === currentUsername || isUserAdmin(currentUsername);
+            const id = jsq(forum.id);
+
+            const dropdownItems = canManage ? `
+                <button class="dropdown-item" onclick="event.stopPropagation(); openEditForumModal(${id})"><i class="fa-solid fa-pen-to-square"></i> Editar foro</button>
+                <button class="dropdown-item danger" onclick="event.stopPropagation(); deleteForum(${id})"><i class="fa-solid fa-trash"></i> Eliminar</button>
+            ` : `
+                <button class="dropdown-item" onclick="event.stopPropagation(); toast('Foro silenciado')"><i class="fa-solid fa-bell-slash"></i> Silenciar</button>
+                <button class="dropdown-item danger" onclick="event.stopPropagation(); toast('Foro denunciado')"><i class="fa-solid fa-triangle-exclamation"></i> Denunciar</button>
+            `;
+
+            const card = document.createElement('div');
+            card.className = 'forum-card';
+            card.innerHTML = `
+                <div class="forum-options-container">
+                    <button class="forum-options-btn" onclick="toggleForumDropdown(event, ${id})"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                    <div class="forum-dropdown-menu" id="forum-menu-${esc(forum.id)}">${dropdownItems}</div>
+                </div>
+                <img src="${esc(forum.banner)}" alt="" class="forum-banner">
+                <div class="forum-card-body">
+                    <img src="${esc(forum.avatar)}" alt="" class="forum-avatar-mini">
+                    <div class="forum-card-content">
+                        <div class="forum-card-title-row">
+                            <h3>${esc(forum.name)}</h3>
+                            ${isOfficial ? '<i class="fa-solid fa-circle-check verified-forum-badge" title="Foro Verificado Oficial"></i>' : ''}
+                        </div>
+                        <p class="forum-card-desc">${esc(forum.description)}</p>
+                        <div class="forum-card-stats"><span><i class="fa-solid fa-users"></i> ${forum.followers}</span><span>Creado por ${esc(forum.creator)}</span></div>
+                    </div>
+                </div>
+                <div class="forum-card-overlay">
+                    ${isJoined
+                        ? `<button class="btn btn-danger" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="event.stopPropagation(); leaveForum(${id})">Salir</button>`
+                        : `<button class="btn" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="event.stopPropagation(); joinForum(${id})">Unirse</button>`}
+                </div>
+            `;
+            card.onclick = () => openForumDetail(forum.id);
+            return card;
+        }
+
+        function toggleForumDropdown(e, forumId) {
+            e.stopPropagation();
+            document.querySelectorAll('.forum-dropdown-menu').forEach(m => { if (m.id !== `forum-menu-${forumId}`) m.classList.remove('active'); });
+            document.getElementById(`forum-menu-${forumId}`).classList.toggle('active');
+        }
+        window.addEventListener('click', () => { document.querySelectorAll('.forum-dropdown-menu').forEach(m => m.classList.remove('active')); });
+
+        function joinForum(id) { const f = forumsData.find(x => x.id === id); if (f) { f.isJoined = true; f.followers++; saveToLocalStorage(); renderForumsPanel(); } }
+        function leaveForum(id) { const f = forumsData.find(x => x.id === id); if (f) { f.isJoined = false; f.followers = Math.max(0, f.followers - 1); saveToLocalStorage(); renderForumsPanel(); } }
+        function deleteForum(id) {
+            if (id === 'general') { toast('El foro General no se puede eliminar.'); return; }
+            if (confirm('¿Eliminar este foro y sus publicaciones?')) {
+                forumsData = forumsData.filter(x => x.id !== id);
+                postsData = postsData.filter(p => p.forumId !== id);
+                saveToLocalStorage(); renderForumsPanel();
+            }
+        }
+
+        function openForumDetail(forumId) {
+            const forum = forumsData.find(f => f.id === forumId);
+            if (!forum) return;
+            switchForumSubview('feed');   // primero se reinicia la vista...
+            activeForumFilter = forumId;  // ...y después se aplica el filtro del foro
+
+            const wrapper = document.getElementById('forum-main-wrapper');
+            wrapper.style.padding = '1.5rem';
+            if (forum.bgType === 'gradient') wrapper.style.background = `linear-gradient(135deg, ${forum.bgValue || '#312e81'}, var(--bg-dark))`;
+            else if (forum.bgType === 'image' && forum.bgValue) wrapper.style.background = `url("${forum.bgValue}") center/cover no-repeat`;
+            else wrapper.style.background = forum.bgValue || '#0f172a';
+
+            const isOfficial = adminUsers.includes(forum.creator) || forum.isOfficial;
+            const canEdit = forum.creator === currentUsername || isUserAdmin(currentUsername);
+            const editButton = canEdit ? `<button class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;" onclick="openEditForumModal(${jsq(forum.id)})"><i class="fa-solid fa-pen"></i> Editar</button>` : '';
+
+            const detailContainer = document.getElementById('forum-detail-view-container');
+            detailContainer.style.display = 'block';
+            detailContainer.innerHTML = `
+                <div class="forum-detail-header">
+                    <img src="${esc(forum.banner)}" alt="" class="forum-detail-banner">
+                    <div class="forum-detail-info">
+                        <div class="forum-detail-left">
+                            <img src="${esc(forum.avatar)}" alt="" class="forum-detail-avatar">
+                            <div>
+                                <h2 style="font-size: 1.5rem;">${esc(forum.name)} ${isOfficial ? '<i class="fa-solid fa-circle-check verified-forum-badge"></i>' : ''}</h2>
+                                <p style="color:var(--text-muted);">${esc(forum.description)}</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            ${editButton}
+                            <button class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;" onclick="switchForumSubview('feed')">← Salir</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            renderPosts();
+        }
+
+        function renderTags() {
+            const container = document.getElementById('tag-filters-container');
+            container.innerHTML = '';
+            const tags = ['Música', 'Audiciones', 'Fans', 'General'];
+            const mk = (label, value) => {
+                const btn = document.createElement('button');
+                btn.className = `tag-pill ${currentTagFilter === value ? 'active' : ''}`;
+                btn.textContent = label;
+                btn.onclick = () => { currentTagFilter = value; renderTags(); renderPosts(); };
+                container.appendChild(btn);
+            };
+            mk('Todas', 'all');
+            tags.forEach(t => mk('#' + t, t));
+        }
+
+        function toggleForumBgInputs() {
+            const t = document.getElementById('edit-bg-type').value;
+            document.getElementById('edit-bg-color-group').style.display = t === 'image' ? 'none' : 'block';
+            document.getElementById('edit-bg-image-group').style.display = t === 'image' ? 'block' : 'none';
+        }
+
+        function openEditForumModal(id) {
+            const f = forumsData.find(x => x.id === id);
+            if (!f) return;
+            resetPending(['efBanner', 'efAvatar', 'efBg'], ['ef-banner-preview', 'ef-avatar-preview', 'ef-bg-preview']);
+            document.querySelectorAll('#edit-forum-modal input[type=file]').forEach(i => i.value = '');
+            document.getElementById('edit-forum-id').value = f.id;
+            document.getElementById('edit-forum-name').value = f.name;
+            document.getElementById('edit-bg-type').value = f.bgType || 'solid';
+            const isHex = /^#[0-9a-f]{6}$/i.test(f.bgValue || '');
+            document.getElementById('edit-bg-value').value = isHex ? f.bgValue : '#0f172a';
+            toggleForumBgInputs();
+            document.getElementById('edit-forum-modal').classList.add('active');
+        }
+        function closeEditForumModal() { document.getElementById('edit-forum-modal').classList.remove('active'); }
+
+        function handleEditForumSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-forum-id').value;
+            const f = forumsData.find(x => x.id === id);
+            if (!f) return;
+            f.name = document.getElementById('edit-forum-name').value.trim();
+            f.bgType = document.getElementById('edit-bg-type').value;
+            if (f.bgType === 'image') { if (pending.efBg) f.bgValue = pending.efBg; else if (!/^data:/.test(f.bgValue || '')) f.bgType = 'solid'; }
+            else f.bgValue = document.getElementById('edit-bg-value').value;
+            if (pending.efBanner) f.banner = pending.efBanner;
+            if (pending.efAvatar) f.avatar = pending.efAvatar;
+            postsData.forEach(p => { if (p.forumId === f.id) p.forumName = f.name; });
+            saveToLocalStorage(); closeEditForumModal();
+            if (activeForumFilter === f.id) openForumDetail(f.id); else renderForumsPanel();
+            toast('Foro actualizado');
+        }
+
+        function openCreateForumModal() {
+            resetPending(['cfBanner', 'cfAvatar'], ['cf-banner-preview', 'cf-avatar-preview']);
+            document.getElementById('form-create-forum').reset();
+            document.getElementById('create-forum-modal').classList.add('active');
+        }
+        function closeCreateForumModal() { document.getElementById('create-forum-modal').classList.remove('active'); }
+
+        function handleCreateForum(e) {
+            e.preventDefault();
+            const name = document.getElementById('forum-name').value.trim();
+            let id = name.toLowerCase().replace(/[^a-z0-9áéíóúñ]+/gi, '-').replace(/^-|-$/g, '') || 'foro';
+            while (forumsData.some(f => f.id === id)) id += '-' + Math.floor(Math.random() * 1000);
+            forumsData.push({
+                id, name, description: document.getElementById('forum-desc').value.trim(),
+                banner: pending.cfBanner || DEFAULT_BANNER, avatar: pending.cfAvatar || DEFAULT_FORUM_AVATAR,
+                creator: currentUsername, followers: 1, isJoined: true, bgType: 'solid', bgValue: '#0f172a',
+                isOfficial: isUserAdmin(currentUsername)
+            });
+            saveToLocalStorage(); closeCreateForumModal(); switchForumSubview('panel');
+            toast('Foro creado');
+        }
+
+        /* ===================== PUBLICACIONES ===================== */
+        function openCreatePostModal() {
+            const sel = document.getElementById('post-forum-select'); sel.innerHTML = '';
+            forumsData.forEach(f => { const opt = document.createElement('option'); opt.value = f.id; opt.textContent = f.name; sel.appendChild(opt); });
+            if (activeForumFilter) sel.value = activeForumFilter;
+            const annOpt = document.getElementById('post-type-announcement-option');
+            const isAdmin = isUserAdmin(currentUsername);
+            annOpt.hidden = !isAdmin; annOpt.disabled = !isAdmin;
+            document.getElementById('post-type-select').value = 'normal';
+            document.getElementById('create-post-modal').classList.add('active');
+        }
+        function closeCreatePostModal() { document.getElementById('create-post-modal').classList.remove('active'); }
+
+        function handleCreatePost(e) {
+            e.preventDefault();
+            const forumId = document.getElementById('post-forum-select').value;
+            const fObj = forumsData.find(f => f.id === forumId);
+            const postType = document.getElementById('post-type-select').value;
+            if (postType === 'announcement' && !isUserAdmin(currentUsername)) { toast('Solo los administradores pueden crear anuncios.'); return; }
+
+            postsData.unshift({
+                id: Date.now(), author: currentUsername,
+                forumId, forumName: fObj ? fObj.name : 'General',
+                tag: document.getElementById('post-tag-input').value.trim(),
+                title: document.getElementById('post-title').value.trim(),
+                content: document.getElementById('post-content').value.trim(),
+                type: postType, timestamp: new Date().toISOString(), likes: 0, dislikes: 0, myReaction: null,
+                comments: [], pollVotes: { option1: 0, option2: 0 }, pollVoters: []
+            });
+            saveToLocalStorage();
+            document.getElementById('form-create-post').reset();
+            closeCreatePostModal();
+            if (activeForumFilter) renderPosts(); else switchForumSubview('feed');
+            toast('Publicación creada');
+        }
+
+        function renderPosts() {
+            const feed = document.getElementById('posts-feed');
+            feed.innerHTML = '';
+
+            let pinned = null;
+            if (activeForumFilter) {
+                pinned = postsData.find(p => p.forumId === activeForumFilter && p.type === 'announcement');
+                if (pinned) {
+                    const banner = document.createElement('div');
+                    banner.className = 'pinned-announcement-banner';
+                    banner.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                            <span class="badge-announcement"><i class="fa-solid fa-bullhorn"></i> ANUNCIO OFICIAL FIJADO</span>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">${esc(pinned.author)}</span>
+                        </div>
+                        <h4 style="font-size: 1rem; font-weight: bold; color: var(--text-main);">${esc(pinned.title)}</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">${esc(pinned.content)}</p>
+                    `;
+                    const pid = pinned.id;
+                    banner.onclick = () => openPostDetailModal(pid);
+                    feed.appendChild(banner);
+                }
+            }
+
+            const filtered = postsData.filter(post => {
+                if (pinned && post.id === pinned.id) return false;
+                if (activeForumFilter && post.forumId !== activeForumFilter) return false;
+                if (currentTagFilter !== 'all' && post.tag !== currentTagFilter) return false;
+                return true;
+            });
+
+            filtered.sort((a, b) => {
+                if (currentSortMode === 'old') return new Date(a.timestamp) - new Date(b.timestamp);
+                if (currentSortMode === 'controversial') {
+                    const s = p => (p.likes || 0) + (p.dislikes || 0) - Math.abs((p.likes || 0) - (p.dislikes || 0));
+                    return s(b) - s(a);
+                }
+                return new Date(b.timestamp) - new Date(a.timestamp);
+            });
+
+            if (filtered.length === 0 && !pinned) {
+                feed.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 2rem;">No hay publicaciones. ¡Sé el primero en publicar!</div>`;
+                return;
+            }
+
+            filtered.forEach(post => {
+                const card = document.createElement('div');
+                card.className = 'post-card';
+                card.onclick = () => openPostDetailModal(post.id);
+
+                let contentRender = `<p>${esc(post.content)}</p>`;
+                if (post.type === 'poll') {
+                    const v = post.pollVotes || { option1: 0, option2: 0 };
+                    contentRender = `
+                        <p>📊 <strong>Encuesta:</strong> ${esc(post.content)}</p>
+                        <button class="poll-option-btn" onclick="event.stopPropagation(); votePoll(${post.id}, 'option1')">👍 Sí / Opción A (${v.option1})</button>
+                        <button class="poll-option-btn" onclick="event.stopPropagation(); votePoll(${post.id}, 'option2')">👎 No / Opción B (${v.option2})</button>
+                        ${post.author === currentUsername ? `<small style="color: var(--coin-gold);">[Creador] Votos totales: ${v.option1 + v.option2}</small>` : `<small style="color: var(--text-muted);">Resultados detallados solo visibles para el creador.</small>`}
+                    `;
+                }
+
+                const author = jsq(post.author);
+                card.innerHTML = `
+                    <div class="post-header">
+                        <div class="post-author-info" onclick="event.stopPropagation(); openUserProfilePreview(${author}, ${jsq(post.avatar || '')}, '')">
+                            <img src="${esc(avatarFor(post.author, post.avatar))}" alt="" class="post-author-avatar">
+                            <div class="post-meta-text"><h4>${esc(post.author)}${renderUserBadges(post.author)}</h4><span>Foro: <strong>${esc(post.forumName)}</strong></span></div>
+                        </div>
+                        <span class="post-badge">#${esc(post.tag)}</span>
+                    </div>
+                    <div class="post-body"><h3>${esc(post.title)}</h3>${contentRender}</div>
+                    <div class="post-footer" onclick="event.stopPropagation()">
+                        <button class="post-action-btn ${post.myReaction === 'like' ? 'liked' : ''}" onclick="reactPost(${post.id}, 'like')"><i class="fa-solid fa-thumbs-up"></i> <span>${post.likes || 0}</span></button>
+                        <button class="post-action-btn ${post.myReaction === 'dislike' ? 'liked' : ''}" onclick="reactPost(${post.id}, 'dislike')"><i class="fa-solid fa-thumbs-down"></i> <span>${post.dislikes || 0}</span></button>
+                        <button class="post-action-btn" onclick="openPostDetailModal(${post.id})"><i class="fa-solid fa-comments"></i> <span>${post.comments ? post.comments.length : 0}</span></button>
+                    </div>
+                `;
+                feed.appendChild(card);
+            });
+        }
+
+        function reactPost(postId, type) {
+            const post = postsData.find(p => p.id === postId);
+            if (!post) return;
+            if (post.myReaction === type) {
+                if (type === 'like') post.likes--; else post.dislikes--;
+                post.myReaction = null;
+            } else {
+                if (post.myReaction === 'like') post.likes--;
+                if (post.myReaction === 'dislike') post.dislikes--;
+                if (type === 'like') post.likes++; else post.dislikes++;
+                post.myReaction = type;
+            }
+            saveToLocalStorage(); renderPosts();
+        }
+
+        function votePoll(postId, option) {
+            const post = postsData.find(p => p.id === postId);
+            if (!post) return;
+            post.pollVoters = post.pollVoters || [];
+            if (post.pollVoters.includes(currentUsername)) { toast('Ya has votado en esta encuesta.'); return; }
+            post.pollVotes[option]++;
+            post.pollVoters.push(currentUsername);
+            saveToLocalStorage(); renderPosts();
+            toast('¡Tu voto ha sido registrado!');
+        }
+
+        function openPostDetailModal(postId) {
+            currentOpenPostId = postId;
+            const post = postsData.find(p => p.id === postId);
+            if (!post) return;
+            document.getElementById('modal-post-content-area').innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;" onclick="openUserProfilePreview(${jsq(post.author)}, ${jsq(post.avatar || '')}, '')">
+                    <img src="${esc(avatarFor(post.author, post.avatar))}" alt="" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                    <div><strong>${esc(post.author)}</strong>${renderUserBadges(post.author)}<br><span style="font-size:0.75rem; color:var(--text-muted);">Foro: ${esc(post.forumName)}</span></div>
+                </div>
+                <h3>${esc(post.title)}</h3>
+                <p style="white-space: pre-wrap;">${esc(post.content)}</p>
+            `;
+            renderCommentsInModal(post);
+            document.getElementById('post-detail-modal').classList.add('active');
+        }
+        function closePostDetailModal() {
+            document.getElementById('post-detail-modal').classList.remove('active');
+            currentOpenPostId = null;
+        }
+
+        function renderCommentsInModal(post) {
+            const list = document.getElementById('modal-comments-list');
+            list.innerHTML = '';
+            if (!post.comments || post.comments.length === 0) {
+                list.innerHTML = `<span style="font-size:0.85rem; color: var(--text-muted);">No hay comentarios aún. ¡Sé el primero en comentar!</span>`;
+                return;
+            }
+            post.comments.forEach(c => {
+                const div = document.createElement('div');
+                div.className = 'comment-box';
+                div.innerHTML = `<strong style="font-size: 0.85rem; color: var(--primary); cursor:pointer;" onclick="openUserProfilePreview(${jsq(c.author)}, '', '')">${esc(c.author)}</strong>${renderUserBadges(c.author)}<p style="font-size: 0.9rem; margin-top: 0.2rem;">${esc(c.text)}</p>`;
+                list.appendChild(div);
+            });
+        }
+
+        function submitComment() {
+            const input = document.getElementById('new-comment-input');
+            const text = input.value.trim();
+            if (!text || !currentOpenPostId) return;
+            const post = postsData.find(p => p.id === currentOpenPostId);
+            if (post) {
+                if (!post.comments) post.comments = [];
+                post.comments.push({ author: currentUsername, text, timestamp: new Date().toISOString() });
+                saveToLocalStorage();
+                input.value = '';
+                renderCommentsInModal(post);
+                renderPosts();
+            }
+        }
+
+        /* ===================== CONFIGURACIÓN ===================== */
+        function currentAccountType() {
+            if (isUserAdmin(currentUsername)) return 'admin';
+            if (isUserArtist(currentUsername)) return 'artista';
+            return 'fan';
+        }
+
+        function openSettingsModal() {
+            document.getElementById('settings-theme-select').value = document.body.classList.contains('light-theme') ? 'light' : 'dark';
+            const sel = document.getElementById('account-type-select');
+            sel.value = currentAccountType();
+            handleAccountTypeChange(sel.value);
+            renderPrimaryColorPalette();
+            document.getElementById('settings-modal').classList.add('active');
+        }
+        function closeSettingsModal() { document.getElementById('settings-modal').classList.remove('active'); }
+        function openPrivacyModal() { toast('Privacidad: tu perfil es visible para la comunidad de YM-ki Web.'); }
+
+        function changeTheme(theme) {
+            document.body.classList.toggle('light-theme', theme === 'light');
+            localStorage.setItem('ym_theme', theme === 'light' ? 'light' : 'dark');
+        }
+
+        function changePrimaryColor(hex) {
+            document.documentElement.style.setProperty('--primary', hex);
+            localStorage.setItem('ym_primary_color', hex);
+            const picker = document.getElementById('advanced-color-picker');
+            if (picker && /^#[0-9a-f]{6}$/i.test(hex)) picker.value = hex;
+            document.querySelectorAll('#primary-color-palette .btn').forEach(b => b.classList.toggle('selected', b.dataset.hex === hex));
+        }
+
+        function renderPrimaryColorPalette() {
+            const container = document.getElementById('primary-color-palette');
+            const pickerBox = document.getElementById('admin-artist-color-picker-container');
+            container.innerHTML = '';
+            const privileged = isUserAdmin(currentUsername) || isUserArtist(currentUsername);
+            pickerBox.style.display = privileged ? 'block' : 'none';
+
+            const privilegedColors = [
+                { name: 'Índigo', hex: '#6366f1' }, { name: 'Rosa Claro', hex: '#f472b6' }, { name: 'Rosa Fuerte', hex: '#db2777' },
+                { name: 'Fucsia', hex: '#ec4899' }, { name: 'Azul Claro', hex: '#38bdf8' }, { name: 'Naranja', hex: '#f97316' },
+                { name: 'Melocotón', hex: '#fb923c' }, { name: 'Verde Lima', hex: '#84cc16' }, { name: 'Verde Pastel', hex: '#a3e635' },
+                { name: 'Verde Bosque', hex: '#15803d' }, { name: 'Lila', hex: '#c084fc' }, { name: 'Morado Pastel', hex: '#d8b4fe' },
+                { name: 'Morado', hex: '#9333ea' }, { name: 'Marrón', hex: '#78350f' }, { name: 'Negro', hex: '#020617' }, { name: 'Blanco', hex: '#f8fafc' }
+            ];
+            const standardColors = [
+                { name: 'Índigo', hex: '#6366f1' }, { name: 'Rojo', hex: '#ef4444' }, { name: 'Amarillo', hex: '#f59e0b' },
+                { name: 'Azul', hex: '#2563eb' }, { name: 'Gris', hex: '#64748b' }
+            ];
+            const current = (localStorage.getItem('ym_primary_color') || '#6366f1').toLowerCase();
+            (privileged ? privilegedColors : standardColors).forEach(c => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'btn' + (c.hex === current ? ' selected' : '');
+                btn.dataset.hex = c.hex;
+                btn.style.backgroundColor = c.hex;
+                btn.style.color = (c.hex === '#f8fafc' || c.hex === '#a3e635') ? '#000' : '#fff';
+                btn.style.padding = '0.4rem 0.8rem';
+                btn.style.fontSize = '0.8rem';
+                btn.textContent = c.name;
+                btn.onclick = () => changePrimaryColor(c.hex);
+                container.appendChild(btn);
+            });
+            if (/^#[0-9a-f]{6}$/i.test(current)) document.getElementById('advanced-color-picker').value = current;
+        }
+
+        function handleAccountTypeChange(type) {
+            const group = document.getElementById('account-verification-group');
+            const label = document.getElementById('verification-label');
+            const input = document.getElementById('account-verification-input');
+            input.value = '';
+            if (type === currentAccountType() || type === 'fan') { group.style.display = 'none'; return; }
+            group.style.display = 'block';
+            if (type === 'admin') { label.textContent = 'Clave de Administrador'; input.placeholder = 'Ingresa la clave de administrador'; }
+            else { label.textContent = 'Código de Artista (audición aprobada)'; input.placeholder = 'Ingresa tu código de audición'; }
+        }
+
+        function verifyAccountUpgrade() {
+            const type = document.getElementById('account-type-select').value;
+            const inputVal = document.getElementById('account-verification-input').value.trim();
+
+            if (type === 'admin') {
+                if (inputVal === 'admin') {
+                    if (!adminUsers.includes(currentUsername)) adminUsers.push(currentUsername);
+                    saveToLocalStorage();
+                    afterAccountUpgrade('¡Cuenta convertida a Administrador con éxito!');
+                } else toast('Clave de administrador incorrecta.');
+            } else if (type === 'artista') {
+                if (inputVal === 'YM-ARTISTA-2026') {
+                    userProfile.isArtist = true;
+                    const artists = load('ym_artists', []);
+                    if (!artists.includes(currentUsername)) { artists.push(currentUsername); localStorage.setItem('ym_artists', JSON.stringify(artists)); }
+                    saveToLocalStorage();
+                    afterAccountUpgrade('¡Felicidades! Tu cuenta ahora es de Artista oficial.');
+                } else toast('Primero tienes que pasar una audición y colocar el código válido que se te dio.');
+            }
+        }
+        function afterAccountUpgrade(msg) {
+            toast(msg);
+            updateUserUI();
+            checkFanClubPermissions();
+            renderPrimaryColorPalette();
+            handleAccountTypeChange(document.getElementById('account-type-select').value);
+            closeSettingsModal();
+        }
+
+        /* ===================== NOTIFICACIONES ===================== */
+        function openNotificationsModal() {
+            const list = document.getElementById('notifications-list');
+            list.innerHTML = `
+                <div style="background-color: var(--bg-dark); padding: 0.75rem; border-radius: 0.5rem; font-size: 0.9rem;">¡Bienvenido a YM-ki Web!</div>
+                <div style="background-color: var(--bg-dark); padding: 0.75rem; border-radius: 0.5rem; font-size: 0.9rem;">Explora los foros, únete a un club de fans o postúlate en el Centro de Audiciones.</div>
+            `;
+            document.getElementById('notifications-modal').classList.add('active');
+            document.getElementById('nav-notif-dot').style.display = 'none';
+            localStorage.setItem('ym_notif_seen_' + currentUsername, '1');
+        }
+        function closeNotificationsModal() { document.getElementById('notifications-modal').classList.remove('active'); }
+
+        /* ===================== PERFILES ===================== */
+        function openUserProfilePreview(username, avatar, desc) {
+            const known = username === currentUsername || getProfilesDB()[username];
+            const p = getProfileOf(username);
+            document.getElementById('preview-user-name').innerHTML = esc((known && p.nickname) || username) + renderUserBadges(username);
+            document.getElementById('preview-user-avatar').src = (known && p.avatar) || avatar || DEFAULT_AVATAR;
+            document.getElementById('preview-user-desc').textContent = desc || (known && p.description) || 'Usuario de la comunidad YM-ki Web.';
+            document.querySelector('.profile-preview-card').style.backgroundColor = (known && p.profileBgColor) || 'var(--bg-card)';
+
+            const ring = document.getElementById('preview-user-ring');
+            ring.style.borderColor = p.ringColor || '#6366f1';
+            ring.style.backgroundImage = p.transparentFrame ? `url("${p.transparentFrame}")` : 'none';
+
+            viewingUserId = username;
+            document.getElementById('user-profile-preview-modal').classList.add('active');
+        }
+        function closeUserProfilePreview() { document.getElementById('user-profile-preview-modal').classList.remove('active'); }
+        function sendFriendRequest() { toast(`¡Solicitud de amistad enviada a ${viewingUserId}!`); }
+        function reportUser() { toast(`Usuario ${viewingUserId} reportado.`); closeUserProfilePreview(); }
+        function openDirectMessageFromProfile() {
+            const target = viewingUserId;
+            closeUserProfilePreview();
+            closePostDetailModal();
+            if (!target || target === currentUsername) { toast('No puedes enviarte mensajes a ti mismo.'); return; }
+            ensureChat(target);
+            activeChatName = target;
+            switchSection('chats');
+        }
+
+        function openProfileCustomizePage() {
+            closeSidebar();
+            switchSection('profile-customize');
+            resetPending(['pfAvatar', 'pfBanner', 'pfFrame'], ['page-avatar-preview', 'page-banner-preview', 'frame-preview'], ['profile-avatar-file', 'profile-banner-file', 'profile-frame-file']);
+
+            document.getElementById('profile-username-input').value = currentUsername;
+            document.getElementById('profile-nickname-input').value = userProfile.nickname || currentUsername;
+            document.getElementById('profile-desc-textarea').value = userProfile.description;
+            document.getElementById('profile-ring-color-input').value = userProfile.ringColor;
+
+            const customFields = document.getElementById('artist-admin-customization-fields');
+            if (isUserAdmin(currentUsername) || isUserArtist(currentUsername)) {
+                customFields.style.display = 'block';
+                document.getElementById('profile-bg-color-input').value = userProfile.profileBgColor || '#1e293b';
+                document.getElementById('badge-admin-color-input').value = userProfile.badgeAdminColor || '#ec4899';
+                document.getElementById('badge-verified-color-input').value = userProfile.badgeVerifiedColor || '#38bdf8';
+                document.getElementById('artist-animal-input').value = userProfile.animal || '';
+                document.getElementById('artist-allow-messages').checked = userProfile.allowMessages !== false;
+                if (userProfile.transparentFrame) showPreview('frame-preview', userProfile.transparentFrame);
+            } else customFields.style.display = 'none';
+
+            if (userProfile.avatar) showPreview('page-avatar-preview', userProfile.avatar);
+            if (userProfile.banner) showPreview('page-banner-preview', userProfile.banner);
+        }
+
+        function renameUser(oldName, newName) {
+            adminUsers = adminUsers.map(u => u === oldName ? newName : u);
+            const artists = load('ym_artists', []).map(u => u === oldName ? newName : u);
+            localStorage.setItem('ym_artists', JSON.stringify(artists));
+            fanClubsData.forEach(c => {
+                c.members = (c.members || []).map(u => u === oldName ? newName : u);
+                c.artists = (c.artists || []).map(u => u === oldName ? newName : u);
+                if (c.manager === oldName) c.manager = newName;
+            });
+            postsData.forEach(p => {
+                if (p.author === oldName) p.author = newName;
+                (p.comments || []).forEach(c => { if (c.author === oldName) c.author = newName; });
+                if (p.pollVoters) p.pollVoters = p.pollVoters.map(u => u === oldName ? newName : u);
+            });
+            forumsData.forEach(f => { if (f.creator === oldName) f.creator = newName; });
+            const db = getProfilesDB();
+            delete db[oldName];
+            localStorage.setItem('ym_user_profiles', JSON.stringify(db));
+        }
+
+        function handleProfilePageSubmit(e) {
+            e.preventDefault();
+            const newName = document.getElementById('profile-username-input').value.trim();
+            if (!newName) return;
+            if (newName !== currentUsername) {
+                if (getProfilesDB()[newName]) { toast('Ese nombre de usuario ya está en uso.'); return; }
+                renameUser(currentUsername, newName);
+                currentUsername = newName;
+                localStorage.setItem('ym_current_user', currentUsername);
+            }
+            userProfile.nickname = document.getElementById('profile-nickname-input').value.trim();
+            userProfile.description = document.getElementById('profile-desc-textarea').value.trim();
+            userProfile.ringColor = document.getElementById('profile-ring-color-input').value;
+            if (pending.pfAvatar) userProfile.avatar = pending.pfAvatar;
+            if (pending.pfBanner) userProfile.banner = pending.pfBanner;
+
+            if (isUserAdmin(currentUsername) || isUserArtist(currentUsername)) {
+                userProfile.profileBgColor = document.getElementById('profile-bg-color-input').value;
+                userProfile.badgeAdminColor = document.getElementById('badge-admin-color-input').value;
+                userProfile.badgeVerifiedColor = document.getElementById('badge-verified-color-input').value;
+                userProfile.animal = document.getElementById('artist-animal-input').value.trim();
+                userProfile.allowMessages = document.getElementById('artist-allow-messages').checked;
+                if (pending.pfFrame) userProfile.transparentFrame = pending.pfFrame;
+            }
+
+            saveToLocalStorage();
+            updateUserUI();
+            toast('¡Perfil actualizado correctamente!');
+            switchSection('foros');
+        }
+
+        /* ===================== CHATS ===================== */
+        function ensureChat(name) {
+            if (!chatsData.some(c => c.name === name)) {
+                chatsData.push({ name, avatar: avatarFor(name, DEFAULT_AVATAR), messages: [] });
+                saveToLocalStorage();
+            }
+        }
+
+        function renderChats() {
+            const list = document.getElementById('chats-contacts-list');
+            list.innerHTML = '';
+            if (!chatsData.length) {
+                list.innerHTML = `<div style="padding:1rem; color:var(--text-muted); font-size:0.85rem;">Aún no tienes chats. Usa el botón para iniciar uno.</div>`;
+            }
+            if (!activeChatName && chatsData.length) activeChatName = chatsData[0].name;
+            chatsData.forEach(c => {
+                const last = c.messages.length ? c.messages[c.messages.length - 1].text : 'Sin mensajes';
+                const item = document.createElement('div');
+                item.className = 'chat-contact-item' + (c.name === activeChatName ? ' active' : '');
+                item.innerHTML = `
+                    <img src="${esc(avatarFor(c.name, c.avatar))}" alt="" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                    <div style="min-width:0;">
+                        <h4 style="font-size: 0.9rem; font-weight: 600;">${esc(c.name)}</h4>
+                        <span style="font-size: 0.75rem; color: var(--text-muted); display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:170px;">${esc(last)}</span>
+                    </div>`;
+                item.onclick = () => { activeChatName = c.name; renderChats(); };
+                list.appendChild(item);
+            });
+
+            const chat = chatsData.find(c => c.name === activeChatName);
+            const header = document.getElementById('active-chat-header');
+            const area = document.getElementById('chat-messages-container');
+            if (!chat) { header.innerHTML = ''; area.innerHTML = ''; return; }
+            header.innerHTML = `
+                <img src="${esc(avatarFor(chat.name, chat.avatar))}" alt="" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover;">
+                <div><h4 style="font-size: 0.95rem; font-weight: 600;">${esc(chat.name)}${renderUserBadges(chat.name)}</h4><span style="font-size: 0.75rem; color: var(--verified-blue);">● En línea</span></div>`;
+            area.innerHTML = chat.messages.map(m => `<div class="chat-message ${m.from === 'out' ? 'outgoing' : 'incoming'}">${esc(m.text)}</div>`).join('');
+            area.scrollTop = area.scrollHeight;
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chat-message-input');
+            const text = input.value.trim();
+            if (!text) return;
+            const chat = chatsData.find(c => c.name === activeChatName);
+            if (!chat) { toast('Selecciona o crea un chat primero.'); return; }
+            chat.messages.push({ from: 'out', text });
+            input.value = '';
+            saveToLocalStorage(); renderChats();
+        }
+        function handleChatKeydown(e) { if (e.key === 'Enter') { e.preventDefault(); sendChatMessage(); } }
+
+        function openAddChatModal() { document.getElementById('add-chat-username').value = ''; document.getElementById('add-chat-modal').classList.add('active'); }
+        function closeAddChatModal() { document.getElementById('add-chat-modal').classList.remove('active'); }
+        function submitAddChat(e) {
+            e.preventDefault();
+            const name = document.getElementById('add-chat-username').value.trim();
+            if (!name) return;
+            if (name === currentUsername) { toast('No puedes chatear contigo mismo.'); return; }
+            ensureChat(name);
+            activeChatName = name;
+            closeAddChatModal();
+            renderChats();
+        }
+
+        /* ===================== AUDICIONES ===================== */
+        const MAX_VOCAL_SECONDS = 240 + 10; // 4 min + tolerancia de 10 s
+
+        function getMediaDuration(file) {
+            return new Promise(resolve => {
+                const url = URL.createObjectURL(file);
+                const media = document.createElement(file.type.startsWith('video') ? 'video' : 'audio');
+                const done = d => { URL.revokeObjectURL(url); resolve(d); };
+                media.preload = 'metadata';
+                media.onloadedmetadata = () => done(isFinite(media.duration) ? media.duration : 0);
+                media.onerror = () => done(0);
+                setTimeout(() => done(0), 8000);
+                media.src = url;
+            });
+        }
+
+        const AUDITION_FIELDS = {
+            vocal: `
+                <div class="form-group" style="margin-bottom:0;"><label>Seudónimo</label><input type="text" id="aud-pseudonym" required placeholder="Ej: StarVoice"></div>
+                <div class="form-group" style="margin-bottom:0;"><label>Archivos de audio o video (puedes subir varios; máximo 4 minutos en total, tolerancia de 10 s)</label><input type="file" id="aud-vocal-files" accept="audio/*,video/*" multiple required></div>`,
+            dance: `
+                <div class="form-group" style="margin-bottom:0;"><label>Estilo de baile</label><input type="text" id="aud-dance-style" required placeholder="Ej: Hip hop, K-pop cover..."></div>
+                <div class="form-group" style="margin-bottom:0;"><label>Video de baile</label><input type="file" id="aud-dance-files" accept="video/*" multiple required></div>`,
+            staff: `
+                <div class="form-group" style="margin-bottom:0;"><label>Área de interés</label>
+                    <select id="aud-staff-area" required>
+                        <option>Producción</option><option>Diseño gráfico</option><option>Edición de video</option><option>Maquillaje y estilismo</option><option>Community manager</option><option>Otra</option>
+                    </select></div>
+                <div class="form-group" style="margin-bottom:0;"><label>Experiencia y motivación</label><textarea id="aud-staff-exp" required></textarea></div>
+                <div class="form-group" style="margin-bottom:0;"><label>Portafolio (opcional)</label><input type="file" id="aud-staff-files" multiple></div>`
+        };
+
+        function renderAuditionFields(modalidad) {
+            const box = document.getElementById('dynamic-audition-fields');
+            if (modalidad === 'vocal-rap') box.innerHTML = AUDITION_FIELDS.vocal;
+            else if (modalidad === 'bailarin') box.innerHTML = AUDITION_FIELDS.dance;
+            else if (modalidad === 'staff') box.innerHTML = AUDITION_FIELDS.staff;
+            else box.innerHTML = AUDITION_FIELDS.vocal + AUDITION_FIELDS.dance;
+        }
+
+        function openAuditionFormPage() {
+            document.getElementById('audition-modalidad').value = 'vocal-rap';
+            renderAuditionFields('vocal-rap');
+            document.getElementById('audition-panel-view').style.display = 'none';
+            document.getElementById('audition-form-view').classList.add('active');
+        }
+        function closeAuditionFormPage() {
+            document.getElementById('audition-form-view').classList.remove('active');
+            document.getElementById('audition-panel-view').style.display = 'flex';
+        }
+
+        function calcAge(dob) {
+            if (!dob) return null;
+            const d = new Date(dob); if (isNaN(d)) return null;
+            const t = new Date();
+            let age = t.getFullYear() - d.getFullYear();
+            if (t < new Date(t.getFullYear(), d.getMonth(), d.getDate())) age--;
+            return age;
+        }
+
+        async function handleAuditionSubmit(e) {
+            e.preventDefault();
+            const age = calcAge(userProfile.dob);
+            if (age !== null && age < 8) { toast('Debes tener al menos 8 años cumplidos para audicionar.'); return; }
+
+            const modalidad = document.getElementById('audition-modalidad').value;
+            const labels = { 'vocal-rap': 'Vocal / Rap', bailarin: 'Bailarín', staff: 'Staff', mixta: 'Mixta' };
+            const names = [];
+            const vocalInput = document.getElementById('aud-vocal-files');
+            if (vocalInput) {
+                let total = 0;
+                for (const f of vocalInput.files) { total += await getMediaDuration(f); names.push(f.name); }
+                if (total > MAX_VOCAL_SECONDS) { toast(`Los archivos suman ${Math.round(total)} s. El máximo es 4 minutos (+10 s de tolerancia).`); return; }
+            }
+            ['aud-dance-files', 'aud-staff-files'].forEach(id => {
+                const inp = document.getElementById(id);
+                if (inp) for (const f of inp.files) names.push(f.name);
+            });
+            const pseud = document.getElementById('aud-pseudonym');
+
+            userProfile.auditions = userProfile.auditions || [];
+            userProfile.auditions.unshift({
+                id: Date.now(), modalidad: labels[modalidad], pseudonym: pseud ? pseud.value.trim() : '',
+                files: names, date: new Date().toISOString(), status: 'En revisión', evaluator: 'CEO Miki'
+            });
+            saveToLocalStorage();
+            toast('¡Postulación enviada al CEO!');
+            closeAuditionFormPage();
+            renderAuditionSubmissions();
+        }
+
+        function renderAuditionSubmissions() {
+            const list = document.getElementById('audition-submissions-list');
+            const subs = userProfile.auditions || [];
+            if (!subs.length) {
+                list.innerHTML = `<div style="color: var(--text-muted); font-size: 0.9rem;">Aún no has enviado ninguna audición. Presiona «Postularse» para empezar.</div>`;
+                return;
+            }
+            list.innerHTML = subs.map(s => `
+                <div style="background-color: var(--bg-dark); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                    <div>
+                        <h4 style="font-weight: 700;">Modalidad: ${esc(s.modalidad)}${s.pseudonym ? ` (Seudónimo: ${esc(s.pseudonym)})` : ''}</h4>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Evaluado por: ${esc(s.evaluator)} · ${new Date(s.date).toLocaleDateString('es-MX')} · ${s.files.length} archivo(s)</p>
+                    </div>
+                    <span style="background-color: var(--primary-soft); color: var(--primary); padding: 0.35rem 0.85rem; border-radius: 9999px; font-size: 0.85rem; font-weight: 600;">${esc(s.status)}</span>
+                </div>`).join('');
+        }
+
+        /* ===================== CLUBES DE FANS ===================== */
+        function checkFanClubPermissions() {
+            const btn = document.getElementById('create-fan-club-btn');
+            if (btn) btn.style.display = (isUserAdmin(currentUsername) || isUserArtist(currentUsername)) ? 'inline-block' : 'none';
+        }
+
+        function resetFanViews() {
+            document.getElementById('fan-club-detail-view').style.display = 'none';
+            document.getElementById('artist-profile-amplified-view').style.display = 'none';
+            document.getElementById('fan-clubs-grid').style.display = 'grid';
+            document.getElementById('fans-header').style.display = 'flex';
+            activeClubId = null;
+        }
+
+        function openCreateFanClubModal() {
+            tempAssociatedArtists = [];
+            document.getElementById('form-create-fan-club').reset();
+            resetPending(['fcIcon', 'fcBanner', 'fcAvatar'], ['fc-icon-preview', 'fc-banner-preview', 'fc-avatar-preview']);
+            document.getElementById('fc-manager').value = currentUsername;
+            document.getElementById('fc-artists-tags-container').innerHTML = '';
+            document.getElementById('create-fan-club-modal').classList.add('active');
+        }
+        function closeCreateFanClubModal() { document.getElementById('create-fan-club-modal').classList.remove('active'); }
+
+        function handleArtistInputKeydown(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const val = e.target.value.trim();
+                if (val && !tempAssociatedArtists.includes(val)) {
+                    tempAssociatedArtists.push(val);
+                    renderArtistTags();
+                    e.target.value = '';
+                }
+            }
+        }
+        function renderArtistTags() {
+            const container = document.getElementById('fc-artists-tags-container');
+            container.innerHTML = '';
+            tempAssociatedArtists.forEach((art, index) => {
+                const chip = document.createElement('div');
+                chip.className = 'artist-tag-chip';
+                chip.innerHTML = `${esc(art)} <span onclick="removeArtistTag(${index})">&times;</span>`;
+                container.appendChild(chip);
+            });
+        }
+        function removeArtistTag(index) { tempAssociatedArtists.splice(index, 1); renderArtistTags(); }
+
+        function handleCreateFanClub(e) {
+            e.preventDefault();
+            // Si quedó un artista escrito sin presionar Enter, se añade automáticamente
+            const pendingArtist = document.getElementById('fc-artist-input').value.trim();
+            if (pendingArtist && !tempAssociatedArtists.includes(pendingArtist)) tempAssociatedArtists.push(pendingArtist);
+            if (tempAssociatedArtists.length === 0) { toast('Añade al menos un artista asociado (escribe el usuario y presiona Enter).'); return; }
+
+            const price = parseFloat(document.getElementById('fc-price').value);
+            fanClubsData.push({
+                id: Date.now().toString(),
+                name: document.getElementById('fc-name').value.trim(),
+                fandomName: document.getElementById('fc-fandom').value.trim(),
+                artists: [...tempAssociatedArtists],
+                manager: document.getElementById('fc-manager').value.trim(),
+                messagePrice: isNaN(price) ? 10 : price,
+                tagIcon: '⭐',
+                tagIconImg: pending.fcIcon || '',
+                tagColor: '',
+                description: document.getElementById('fc-desc').value.trim(),
+                banner: pending.fcBanner || DEFAULT_BANNER,
+                avatar: pending.fcAvatar || DEFAULT_FORUM_AVATAR,
+                privateForums: [], members: [currentUsername], isMuted: false
+            });
+            saveToLocalStorage();
+            closeCreateFanClubModal();
+            renderFanClubsGrid();
+            updateUserUI();
+            toast('¡Club de fans creado exitosamente!');
+        }
+
+        function renderFanClubsGrid() {
+            checkFanClubPermissions();
+            const grid = document.getElementById('fan-clubs-grid');
+            grid.innerHTML = '';
+            if (fanClubsData.length === 0) {
+                grid.innerHTML = `<div style="text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 3rem;">No hay clubes de fans creados todavía.</div>`;
+                return;
+            }
+            fanClubsData.forEach(club => {
+                const card = document.createElement('div');
+                card.className = 'fan-club-card';
+                card.innerHTML = `
+                    <img src="${esc(club.banner)}" alt="" class="fan-club-banner">
+                    <div class="fan-club-body">
+                        <img src="${esc(club.avatar)}" alt="" class="fan-club-avatar">
+                        <h3 style="font-size: 1.1rem; font-weight: 700; margin-top: 0.25rem;">${esc(club.name)}</h3>
+                        <div>${renderFandomBadge(club)}</div>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Artistas: ${club.artists.map(esc).join(', ')}</p>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; display: flex; justify-content: space-between;">
+                            <span><i class="fa-solid fa-users"></i> ${club.members.length} miembros</span>
+                            <span>${club.members.includes(currentUsername) ? '✓ Eres miembro' : ''}</span>
+                        </div>
+                    </div>`;
+                card.onclick = () => openFanClubDetail(club.id);
+                grid.appendChild(card);
+            });
+        }
+
+        function openFanClubDetail(clubId) {
+            activeClubId = clubId;
+            const club = fanClubsData.find(c => c.id === clubId);
+            if (!club) return;
+
+            document.getElementById('fan-clubs-grid').style.display = 'none';
+            document.getElementById('fans-header').style.display = 'none';
+            document.getElementById('artist-profile-amplified-view').style.display = 'none';
+            document.getElementById('fan-club-detail-view').style.display = 'flex';
+
+            const isOwnerOrManager = club.manager === currentUsername || isUserAdmin(currentUsername);
+            const isMember = club.members.includes(currentUsername);
+            const cid = jsq(club.id);
+
+            const joinArea = isMember
+                ? `<button class="btn" style="background-color: var(--bg-hover); cursor: default;" disabled><i class="fa-solid fa-circle-check"></i> Ya eres miembro</button>`
+                : `<button class="btn" style="background-color: var(--verified-blue);" onclick="joinClubMembers(${cid})">Unirse al Club</button>`;
+
+            document.getElementById('fan-club-detail-content').innerHTML = `
+                <div style="background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 1rem; overflow: hidden;">
+                    <img src="${esc(club.banner)}" alt="" style="width: 100%; height: 200px; object-fit: cover; display:block;">
+                    <div style="padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem; position: relative;">
+                        <img src="${esc(club.avatar)}" alt="" style="width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--bg-card); object-fit: cover; position: absolute; top: -50px; left: 2rem; background: var(--bg-dark);">
+                        <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                            <div>
+                                <h2 style="font-size: 1.75rem; font-weight: 800;">${esc(club.name)}</h2>
+                                ${renderFandomBadge(club)}
+                                <p style="color: var(--text-muted); margin-top: 0.75rem;">${esc(club.description)}</p>
+                                <p style="color: var(--text-muted); margin-top: 0.5rem; font-size: 0.8rem;"><i class="fa-solid fa-users"></i> ${club.members.length} miembros</p>
+                            </div>
+                            <div>${joinArea}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 1rem; padding: 1.5rem;">
+                    <h3><i class="fa-solid fa-microphone-lines" style="color: var(--primary);"></i> Perfil de Artista/s Asociados</h3>
+                    <div class="artist-preview-grid" id="club-artists-grid"></div>
+                </div>
+
+                <div style="background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 1rem; padding: 1.5rem;">
+                    <h3><i class="fa-solid fa-comments" style="color: var(--accent);"></i> Foros del Club de Fans</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem;">
+                        <div class="sidebar-link" style="margin-bottom:0;" onclick="toast('Abriendo Foros de la Comunidad...')"><i class="fa-solid fa-globe"></i> Foros de la Comunidad</div>
+                        <div class="sidebar-link" style="margin-bottom:0;" onclick="toast('Abriendo Foros Asociados...')"><i class="fa-solid fa-link"></i> Foros Asociados</div>
+                        <div class="sidebar-link" style="margin-bottom:0;" onclick="toast('Abriendo Foros Oficiales del Club...')"><i class="fa-solid fa-shield-halved"></i> Foros Oficiales del Club de Fans</div>
+                        ${club.privateForums.map((pf, idx) => `
+                            <div class="sidebar-link" style="margin-bottom:0; border-color: var(--accent);" onclick="toast(${jsq('Abriendo foro privado: ' + pf)})">
+                                <i class="fa-solid fa-lock"></i> Foro Privado: ${esc(pf)}
+                                ${isOwnerOrManager ? `<button class="btn btn-danger" style="padding:0.1rem 0.6rem; font-size:0.7rem; margin-left:auto;" onclick="event.stopPropagation(); deletePrivateForum(${cid}, ${idx})">Eliminar</button>` : ''}
+                            </div>`).join('')}
+                    </div>
+                </div>
+
+                <div style="background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 1rem; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                    <h3><i class="fa-solid fa-gear"></i> Configuración del Club</h3>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <button class="btn btn-outline" style="font-size: 0.85rem;" onclick="toast('Club silenciado.')">Silenciar club</button>
+                        <button class="btn btn-outline" style="font-size: 0.85rem; border-color: var(--danger); color: var(--danger);" onclick="toast('Club reportado.')">Reportar club</button>
+                        ${isMember ? `<button class="btn btn-danger" style="font-size: 0.85rem;" onclick="leaveFanClub(${cid})">Salir del club de fans</button>` : ''}
+                    </div>
+                    ${isOwnerOrManager ? `
+                        <hr style="border-color: var(--border); margin: 0.5rem 0;">
+                        <h4 style="color: var(--accent);">Panel de Gestión del Manager / Dueño</h4>
+                        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem;">
+                            <button class="btn" style="font-size: 0.85rem;" onclick="openEditClubModal(${cid})">Editar Info / Fotos</button>
+                            <button class="btn" style="font-size: 0.85rem;" onclick="addPrivateForum(${cid})">Añadir Foro Privado (Máx 2)</button>
+                            <button class="btn btn-outline" style="font-size: 0.85rem;" onclick="promptEditTag(${cid})">Editar Etiqueta Fandom</button>
+                            <button class="btn btn-danger" style="font-size: 0.85rem;" onclick="emptyClubMembers(${cid})">Vaciar Miembros</button>
+                        </div>` : ''}
+                </div>
+            `;
+            renderClubArtistsPreview(club.artists);
+        }
+
+        function closeFanClubDetail() {
+            document.getElementById('fan-club-detail-view').style.display = 'none';
+            document.getElementById('fan-clubs-grid').style.display = 'grid';
+            document.getElementById('fans-header').style.display = 'flex';
+            activeClubId = null;
+            renderFanClubsGrid();
+        }
+
+        function renderClubArtistsPreview(artistsList) {
+            const grid = document.getElementById('club-artists-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            artistsList.forEach(art => {
+                const card = document.createElement('div');
+                card.className = 'artist-mini-card';
+                card.innerHTML = `
+                    <img src="${esc(avatarFor(art))}" alt="" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin-bottom: 0.5rem;">
+                    <h4 style="font-size: 0.95rem;">${esc(art)}</h4>
+                    <span style="font-size: 0.75rem; color: var(--verified-blue);">Ver Perfil Ampliado</span>`;
+                card.onclick = () => openArtistAmplifiedView(art);
+                grid.appendChild(card);
+            });
+        }
+
+        function openArtistAmplifiedView(artistName) {
+            const club = fanClubsData.find(c => c.id === activeClubId);
+            const clubPrice = club ? club.messagePrice : 10;
+            const prof = getProfileOf(artistName);
+            const canEdit = artistName === currentUsername || isUserAdmin(currentUsername);
+
+            document.getElementById('fan-club-detail-view').style.display = 'none';
+            document.getElementById('artist-profile-amplified-view').style.display = 'flex';
+
+            document.getElementById('artist-amplified-content').innerHTML = `
+                <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+                    <img src="${esc(avatarFor(artistName))}" alt="" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid ${esc(prof.ringColor)};">
+                    <div>
+                        <h2 style="font-size: 2rem;">${esc(artistName)} ${renderUserBadges(artistName)}</h2>
+                        <p style="color: var(--text-muted); margin-top: 0.25rem;">Artista oficial asociado al Club ${club ? esc(club.name) : ''}</p>
+                    </div>
+                </div>
+                <hr style="border-color: var(--border);">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div><strong>Color representativo:</strong> <span style="display:inline-block; width:15px; height:15px; background:${esc(prof.ringColor)}; vertical-align:middle; border-radius:50%;"></span></div>
+                    <div><strong>Animal representativo:</strong> ${esc(prof.animal || 'Zorro 🦊')}</div>
+                    <div><strong>Admite mensajes:</strong> ${prof.allowMessages !== false ? 'Sí 🟢' : 'No 🔴'}</div>
+                </div>
+                <div>
+                    <strong>Descripción:</strong>
+                    <p style="color: var(--text-muted); margin-top: 0.5rem;">${esc(prof.description)}</p>
+                </div>
+                <div style="margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                    ${prof.allowMessages !== false
+                        ? `<button class="btn" style="background-color: var(--coin-gold); color: #000;" onclick="openPaidMessageModal(${jsq(artistName)}, ${clubPrice})"><i class="fa-solid fa-paper-plane"></i> Enviar Mensaje al Artista (${clubPrice} Monedas)</button>`
+                        : `<p style="color: var(--danger);">Este artista tiene desactivados los mensajes temporales.</p>`}
+                    ${canEdit ? `<button class="btn btn-outline" onclick="openEditArtistModal(${jsq(artistName)})">Editar Perfil de Artista</button>` : ''}
+                </div>
+            `;
+        }
+        function closeArtistAmplifiedView() {
+            document.getElementById('artist-profile-amplified-view').style.display = 'none';
+            document.getElementById('fan-club-detail-view').style.display = 'flex';
+        }
+
+        function openEditArtistModal(artistName) {
+            const prof = getProfileOf(artistName);
+            document.getElementById('edit-artist-name').value = artistName;
+            document.getElementById('edit-artist-animal').value = prof.animal || '';
+            document.getElementById('edit-artist-allow').checked = prof.allowMessages !== false;
+            document.getElementById('edit-artist-modal').classList.add('active');
+        }
+        function closeEditArtistModal() { document.getElementById('edit-artist-modal').classList.remove('active'); }
+        function saveArtistDetails(e) {
+            e.preventDefault();
+            const name = document.getElementById('edit-artist-name').value;
+            updateProfileOf(name, {
+                animal: document.getElementById('edit-artist-animal').value.trim(),
+                allowMessages: document.getElementById('edit-artist-allow').checked
+            });
+            closeEditArtistModal();
+            openArtistAmplifiedView(name);
+            toast('¡Detalles de artista actualizados!');
+        }
+
+        function openPaidMessageModal(artistName, price) {
+            currentPaidArtistName = artistName;
+            currentClubPrice = price;
+            document.getElementById('paid-modal-title').textContent = `Enviar Mensaje a ${artistName}`;
+            document.getElementById('paid-modal-cost-text').textContent = `Costo por este mensaje exclusivo: ${price} Monedas (saldo: ${userProfile.coins || 0})`;
+            document.getElementById('paid-msg-content').value = '';
+            document.getElementById('paid-message-modal').classList.add('active');
+        }
+        function closePaidMessageModal() { document.getElementById('paid-message-modal').classList.remove('active'); }
+        function submitPaidArtistMessage() {
+            const msg = document.getElementById('paid-msg-content').value.trim();
+            if (!msg) { toast('Escribe un mensaje antes de enviar.'); return; }
+            if ((userProfile.coins || 0) < currentClubPrice) { toast('No tienes suficientes monedas.'); return; }
+            userProfile.coins -= currentClubPrice;
+            saveToLocalStorage(); updateUserUI();
+            toast(`¡Mensaje enviado a ${currentPaidArtistName}! Se descontaron ${currentClubPrice} monedas.`);
+            closePaidMessageModal();
+        }
+
+        function joinClubMembers(clubId) {
+            const club = fanClubsData.find(c => c.id === clubId);
+            if (!club) return;
+            if (club.members.includes(currentUsername)) { toast('Ya eres miembro de este club.'); return; }
+            club.members.push(currentUsername);
+            saveToLocalStorage();
+            updateUserUI();
+            openFanClubDetail(clubId);
+            toast(`¡Te has unido al club y ahora portas la etiqueta ${club.fandomName}!`);
+        }
+
+        function leaveFanClub(clubId) {
+            const club = fanClubsData.find(c => c.id === clubId);
+            if (!club) return;
+            club.members = club.members.filter(m => m !== currentUsername);
+            saveToLocalStorage();
+            updateUserUI();
+            closeFanClubDetail();
+            toast('Has salido del club de fans.');
+        }
+
+        function addPrivateForum(clubId) {
+            const club = fanClubsData.find(c => c.id === clubId);
+            if (!club) return;
+            if (club.privateForums.length >= 2) { toast('Límite alcanzado: máximo 2 foros privados por club.'); return; }
+            document.getElementById('private-forum-club-id').value = clubId;
+            document.getElementById('private-forum-name').value = '';
+            document.getElementById('private-forum-modal').classList.add('active');
+        }
+        function closePrivateForumModal() { document.getElementById('private-forum-modal').classList.remove('active'); }
+        function savePrivateForum(e) {
+            e.preventDefault();
+            const club = fanClubsData.find(c => c.id === document.getElementById('private-forum-club-id').value);
+            const name = document.getElementById('private-forum-name').value.trim();
+            if (!club || !name) return;
+            club.privateForums.push(name);
+            saveToLocalStorage();
+            closePrivateForumModal();
+            openFanClubDetail(club.id);
+            toast('¡Foro privado añadido!');
+        }
+        function deletePrivateForum(clubId, index) {
+            const club = fanClubsData.find(c => c.id === clubId);
+            if (club && confirm('¿Eliminar este foro privado?')) {
+                club.privateForums.splice(index, 1);
+                saveToLocalStorage();
+                openFanClubDetail(clubId);
+            }
+        }
+        function emptyClubMembers(clubId) {
+            if (!confirm('¿Estás seguro de vaciar todos los miembros del club?')) return;
+            const club = fanClubsData.find(c => c.id === clubId);
+            if (club) {
+                club.members = [club.manager];
+                saveToLocalStorage();
+                updateUserUI();
+                openFanClubDetail(clubId);
+                toast('El club ha sido vaciado de miembros.');
+            }
+        }
+
+        /* --- Editar información del club (ventana propia, imágenes por importación) --- */
+        function openEditClubModal(clubId) {
+            const club = fanClubsData.find(c => c.id === clubId);
+            if (!club) return;
+            resetPending(['ecBanner', 'ecAvatar'], ['edit-club-banner-preview', 'edit-club-avatar-preview'], ['edit-club-banner-file', 'edit-club-avatar-file']);
+            document.getElementById('edit-club-id').value = club.id;
+            document.getElementById('edit-club-name').value = club.name;
+            document.getElementById('edit-club-desc').value = club.description;
+            document.getElementById('edit-club-price').value = club.messagePrice;
+            document.getElementById('edit-club-modal').classList.add('active');
+        }
+        function closeEditClubModal() { document.getElementById('edit-club-modal').classList.remove('active'); }
+        function saveClubInfo(e) {
+            e.preventDefault();
+            const club = fanClubsData.find(c => c.id === document.getElementById('edit-club-id').value);
+            if (!club) return;
+            club.name = document.getElementById('edit-club-name').value.trim();
+            club.description = document.getElementById('edit-club-desc').value.trim();
+            const price = parseFloat(document.getElementById('edit-club-price').value);
+            club.messagePrice = isNaN(price) ? club.messagePrice : price;
+            if (pending.ecBanner) club.banner = pending.ecBanner;
+            if (pending.ecAvatar) club.avatar = pending.ecAvatar;
+            saveToLocalStorage();
+            closeEditClubModal();
+            openFanClubDetail(club.id);
+            toast('¡Información del club actualizada!');
+        }
+
+        /* --- Editar etiqueta de fandom --- */
+        function promptEditTag(clubId) {
+            const club = fanClubsData.find(c => c.id === clubId);
+            if (!club) return;
+            editingFandomClubId = clubId;
+            resetPending(['efIcon'], ['edit-fandom-icon-preview'], ['edit-fandom-icon-file']);
+            pending.efIcon = club.tagIconImg || '';
+            if (club.tagIconImg) showPreview('edit-fandom-icon-preview', club.tagIconImg);
+            document.getElementById('edit-fandom-name-input').value = club.fandomName || '';
+            document.getElementById('edit-fandom-color-input').value = club.tagColor || '#ec4899';
+            document.getElementById('edit-fandom-modal').classList.add('active');
+        }
+        function removeFandomIcon() { pending.efIcon = ''; clearPreview('edit-fandom-icon-preview'); document.getElementById('edit-fandom-icon-file').value = ''; }
+        function closeEditFandomModal() {
+            document.getElementById('edit-fandom-modal').classList.remove('active');
+            editingFandomClubId = null;
+        }
+        function saveFandomTagChanges() {
+            const club = fanClubsData.find(c => c.id === editingFandomClubId);
+            if (!club) return;
+            const newName = document.getElementById('edit-fandom-name-input').value.trim();
+            if (!newName) { toast('Escribe un nombre para el fandom.'); return; }
+            club.fandomName = newName;
+            club.tagColor = document.getElementById('edit-fandom-color-input').value;
+            club.tagIconImg = pending.efIcon || '';
+            saveToLocalStorage();
+            const id = club.id;
+            closeEditFandomModal();
+            openFanClubDetail(id);
+            updateUserUI();
+            toast('¡Etiqueta de fandom actualizada!');
+        }
+
+        /* ===================== INICIO ===================== */
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                const open = document.querySelectorAll('.modal-overlay.active');
+                if (open.length) open[open.length - 1].classList.remove('active');
+                else closeSidebar();
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('nav-avatar').src = DEFAULT_AVATAR;
+            const savedUser = localStorage.getItem('ym_current_user');
+            if (savedUser) {
+                currentUsername = savedUser;
+                loadUserProfile(savedUser);
+                loadDashboard();
+            }
+        });
+    </script>
+</body>
+</html>

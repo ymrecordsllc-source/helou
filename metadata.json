@@ -1,0 +1,8 @@
+{
+  "name": "YM-ki Web - Comunidades, Audiciones y Tienda Oficial",
+  "description": "Plataforma de comunidades, foros oficiales, clubes de fans, audiciones a CEOs, tienda oficial/outlet y vitrina de merch.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

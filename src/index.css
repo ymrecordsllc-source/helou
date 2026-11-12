@@ -1,0 +1,279 @@
+@import "tailwindcss";
+
+:root {
+  --primary: #6366f1;
+  --theme-primary: #6366f1;
+  --theme-dark: #3730a3;
+  --theme-darker: #1e1b4b;
+  --theme-light: #818cf8;
+  --theme-glow: rgba(99, 102, 241, 0.25);
+  --theme-gradient: #6366f1;
+  --theme-banner: #3730a3;
+}
+
+/* Button & Interactive Animations: smooth click feedback */
+button,
+[role="button"],
+.btn-interactive {
+  transition: transform 0.12s ease-in-out, filter 0.12s ease-in-out, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+button:active,
+[role="button"]:active,
+.btn-interactive:active {
+  transform: scale(0.96) !important;
+  filter: brightness(0.92);
+}
+
+/* Button Tokens & Centralized Design System */
+:root {
+  --btn-bg: #6366f1;
+  --btn-text: #ffffff;
+  --btn-border: #6366f1;
+  --btn-hover-bg: #4f46e5;
+  --btn-active-bg: #4338ca;
+  --btn-sec-bg: #1e293b;
+  --btn-sec-text: #f1f5f9;
+  --btn-sec-border: #334155;
+  --btn-sec-hover-bg: #334155;
+  --btn-sec-active-bg: #0f172a;
+}
+
+body.light-theme {
+  --btn-sec-bg: #f1f5f9;
+  --btn-sec-text: #0f172a;
+  --btn-sec-border: #cbd5e1;
+  --btn-sec-hover-bg: #e2e8f0;
+  --btn-sec-active-bg: #cbd5e1;
+}
+
+/* Centralized Button Utilities */
+.theme-btn,
+.btn-theme,
+.btn-primary-custom,
+.btn-action-primary {
+  background-color: var(--btn-bg) !important;
+  color: var(--btn-text) !important;
+  border-color: var(--btn-border) !important;
+  box-shadow: 0 4px 14px 0 var(--theme-glow, rgba(99, 102, 241, 0.25)) !important;
+  transition: all 0.15s ease-in-out;
+}
+
+.theme-btn:hover:not(:disabled),
+.btn-theme:hover:not(:disabled),
+.btn-primary-custom:hover:not(:disabled),
+.btn-action-primary:hover:not(:disabled) {
+  background-color: var(--btn-hover-bg) !important;
+  filter: brightness(1.06);
+}
+
+.theme-btn:active:not(:disabled),
+.btn-theme:active:not(:disabled),
+.btn-primary-custom:active:not(:disabled),
+.btn-action-primary:active:not(:disabled) {
+  background-color: var(--btn-active-bg) !important;
+  transform: scale(0.96);
+}
+
+/* Secondary Buttons */
+.btn-secondary-custom {
+  background-color: var(--btn-sec-bg) !important;
+  color: var(--btn-sec-text) !important;
+  border-color: var(--btn-sec-border) !important;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-secondary-custom:hover:not(:disabled) {
+  background-color: var(--btn-sec-hover-bg) !important;
+}
+
+.btn-secondary-custom:active:not(:disabled) {
+  background-color: var(--btn-sec-active-bg) !important;
+  transform: scale(0.96);
+}
+
+/* Disabled State for all buttons */
+button:disabled,
+[role="button"]:disabled,
+.btn-disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.theme-banner {
+  background-color: var(--theme-banner) !important;
+}
+
+.theme-border {
+  border-color: var(--theme-primary) !important;
+}
+
+.theme-text {
+  color: var(--theme-primary) !important;
+}
+
+/* 3D Photocard Utilities */
+.photocard-3d-scene {
+  perspective: 1200px;
+}
+
+.photocard-3d-card {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.photocard-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.photocard-face-back {
+  transform: rotateY(180deg) translateZ(1px);
+}
+
+/* Dark mode base styles & contrast */
+body {
+  background-color: #020617;
+  color: #f8fafc;
+}
+
+/* Crisp, high-contrast light theme */
+body.light-theme {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+body.light-theme .bg-slate-950 {
+  background-color: #f1f5f9 !important;
+}
+
+body.light-theme .bg-slate-900 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+}
+
+body.light-theme .bg-slate-800 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #1e293b;
+}
+
+body.light-theme .bg-slate-900\/95,
+body.light-theme .bg-slate-900\/90,
+body.light-theme .bg-slate-900\/80,
+body.light-theme .bg-slate-900\/60,
+body.light-theme .bg-slate-950\/80,
+body.light-theme .bg-slate-950\/70,
+body.light-theme .bg-slate-950\/40 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+body.light-theme .bg-slate-800\/60,
+body.light-theme .bg-slate-800\/70,
+body.light-theme .bg-slate-800\/80,
+body.light-theme .bg-slate-800\/90 {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Headings and card titles in light mode */
+body.light-theme h1,
+body.light-theme h2,
+body.light-theme h3,
+body.light-theme h4,
+body.light-theme h5,
+body.light-theme h6 {
+  color: #0f172a !important;
+}
+
+/* Paragraphs & subtitles in light mode */
+body.light-theme .text-slate-100,
+body.light-theme .text-slate-200,
+body.light-theme .text-slate-300 {
+  color: #1e293b !important;
+}
+
+body.light-theme .text-slate-400 {
+  color: #475569 !important;
+}
+
+body.light-theme .text-slate-500 {
+  color: #64748b !important;
+}
+
+body.light-theme .border-slate-800,
+body.light-theme .border-slate-700 {
+  border-color: #e2e8f0 !important;
+}
+
+/* Inputs, selects and textareas in light mode */
+body.light-theme input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+body.light-theme textarea,
+body.light-theme select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+body.light-theme input::placeholder,
+body.light-theme textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Modals in light mode */
+body.light-theme .fixed .bg-slate-900 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.2) !important;
+}
+
+/* Preserve crisp white text on primary theme buttons and banners */
+.theme-btn,
+.theme-btn *,
+.theme-banner *,
+.text-white-fixed,
+.text-white-fixed * {
+  color: #ffffff !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideRight {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.18s ease-out forwards;
+}
+
+.animate-slideRight {
+  animation: slideRight 0.22s ease-out forwards;
+}
+
+/* Custom scrollbars for clean look */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 9999px;
+}
+body.light-theme ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
